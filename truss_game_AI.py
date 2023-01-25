@@ -1,7 +1,8 @@
 import numpy as np
 import scipy.spatial
 import pygame
-import tflite_runtime.interpreter as tflite
+#import tflite_runtime.interpreter as tflite
+import tensorflow as tf
 import sys, os
 
 
@@ -16,7 +17,7 @@ class TrussGameAI:
         self.large_font = pygame.font.SysFont('segoeui', 72)
         self.force = force
         self.truss = Truss()
-        self.interpreter = tflite.Interpreter('model.tflite')
+        self.interpreter = tf.lite.Interpreter('truss_game_AI_model.tflite')
         self.interpreter.allocate_tensors()
 
     def run(self):
@@ -32,9 +33,35 @@ class TrussGameAI:
                 if event.type == pygame.MOUSEBUTTONUP:
                     mouse_clicked = True
             self.screen.fill(pygame.Color('grey25'))
+            self.__draw_truss()
+            if prediction is None:
+                prediction = self.__predict()
             self.__draw_text('You', (100, 30), self.small_font)
             self.__draw_text('AI', (800, 30), self.small_font)
-            if not simulation_running:
+            if simulation_running:
+                self.__draw_cross(picked_point_user, pygame.Color('white'))
+                self.__draw_cross(prediction, pygame.Color('yellow'))
+                if time < 500:
+                    self.truss.calculate(self.force * (-np.exp(-0.015 * time) * np.cos(0.1 * time) + 1))
+                self.__draw_text('Accuracy', (450, 30), self.small_font)
+                accuracy_user = self.__accuracy(self.truss.nodes[self.truss.loaded_node[0]],
+                                                self.truss.nodes_moved[self.truss.loaded_node[0]], picked_point_user)
+                accuracy_AI = self.__accuracy(self.truss.nodes[self.truss.loaded_node[0]],
+                                              self.truss.nodes_moved[self.truss.loaded_node[0]], prediction)
+                self.__draw_text(f'{accuracy_user:.0f}%', (100, 80), self.large_font)
+                self.__draw_text(f'{accuracy_AI:.0f}%', (800, 80), self.large_font)
+                self.__draw_accuracy_bar(accuracy_user, accuracy_AI)
+                time += 1
+                if mouse_clicked:
+                    mouse_clicked = simulation_running = False
+                    if accuracy_user > accuracy_AI:
+                        score_user += 1
+                    else:
+                        score_AI += 1
+                    print(accuracy_user, accuracy_AI)
+                    prediction = None
+                    self.truss = Truss()
+            else:
                 self.__draw_text('Score', (450, 30), self.small_font)
                 self.__draw_text(f'{score_user}', (100, 80), self.large_font)
                 self.__draw_text(f'{score_AI}', (800, 80), self.large_font)
@@ -44,29 +71,7 @@ class TrussGameAI:
                     picked_point_user = pygame.mouse.get_pos()
                     time = 0
                     simulation_running = True
-            else:
-                self.__draw_cross(picked_point_user, pygame.Color('white'))
-                self.__draw_cross(prediction, pygame.Color('yellow'))
-                self.truss.calculate(self.force * (-np.exp(-0.015 * time) * np.cos(0.1 * time) + 1))
-                self.__draw_text('Accuracy', (450, 30), self.small_font)
-                accuracy_user = self.__accuracy(self.truss.nodes[self.truss.loaded_node[0]],
-                                                self.truss.nodes_moved[self.truss.loaded_node[0]], picked_point_user)
-                accuracy_AI = self.__accuracy(self.truss.nodes[self.truss.loaded_node[0]],
-                                              self.truss.nodes_moved[self.truss.loaded_node[0]], prediction)
-                self.__draw_text(f'{accuracy_user:.0f}%', (100, 80), self.large_font)
-                self.__draw_text(f'{accuracy_AI:.0f}%', (800, 80), self.large_font)
-                time += 1
-                if mouse_clicked:
-                    mouse_clicked = simulation_running = False
-                    if accuracy_user > accuracy_AI: score_user += 1
-                    else: score_AI += 1
-                    print(accuracy_user, accuracy_AI)
-                    prediction = None
-                    self.truss = Truss()
-            self.__draw_truss()
             pygame.display.flip()
-            if prediction is None:
-                prediction = self.__predict()
             self.clock.tick(60)
         pygame.quit()
 
@@ -88,26 +93,48 @@ class TrussGameAI:
                                                   (p[0] + size[0], p[1] + size[1]*direction)]) for p in pos]
 
     def __draw_cross(self, pos, color, size=40):
+        #pos = (pos[0].item(), pos[1].item())
         offset = size/2
-        pygame.draw.line(self.screen, color, (pos[0] - offset, pos[1]), (pos[0] + offset, pos[1]))
-        pygame.draw.line(self.screen, color, (pos[0], pos[1] - offset), (pos[0], pos[1] + offset))
+        pygame.draw.aaline(self.screen, color, (pos[0] - offset, pos[1]), (pos[0] + offset, pos[1]))
+        pygame.draw.aaline(self.screen, color, (pos[0], pos[1] - offset), (pos[0], pos[1] + offset))
+
+    def __draw_accuracy_bar(self, accuracy_user, accuracy_AI):
+        bar_length = abs(accuracy_user - accuracy_AI) * 3
+        bar_thickness = 8
+        if accuracy_user > accuracy_AI:
+            pygame.draw.rect(self.screen, pygame.Color('green'), (450 - bar_length, 81, bar_length, bar_thickness))
+        else:
+            pygame.draw.rect(self.screen, pygame.Color('green'), (450, 81, bar_length, bar_thickness))
+        pygame.draw.line(self.screen, pygame.Color('white'), (450, 75), (450, 95))
 
     def __predict(self):
-        surface = pygame.transform.smoothscale(self.screen.subsurface((68, 68, 768, 768)), (256, 256))
-        image = pygame.surfarray.array3d(surface).swapaxes(0, 1)
-        image = (image.astype(np.float32) - 64) / (256 - 64)
+        # surface = pygame.transform.smoothscale(self.screen.subsurface((68, 68, 768, 768)), (256, 256))
+        image = pygame.surfarray.array3d(self.screen.subsurface(68, 68, 768, 768)).swapaxes(0, 1)
+        image = image.astype(np.float32) # - 64) / (256 - 64)
         input_details = self.interpreter.get_input_details()
         output_details = self.interpreter.get_output_details()
         self.interpreter.set_tensor(input_details[0]['index'], image[None, ...])
         self.interpreter.invoke()
         output_data = self.interpreter.get_tensor(output_details[0]['index'])
-        return output_data[0] + 68
+        return output_data[0]
 
     @staticmethod
-    def __stress_color(sigma, scale=3):
-        return (int(max(min(-sigma*scale + 255, 255), 0)),
-                int(max(min(255 - abs(sigma*scale), 255), 0)),
-                int(max(min(sigma*scale + 255, 255), 0)))
+    def __stress_color(sigma, scale=20):
+        stress = sigma * scale
+        return (int(max(min(255 - stress, 255), 0)),
+                int(max(min(255 - abs(stress), 255), 0)),
+                int(max(min(255 + stress, 255), 0)))
+        # if color == (255, 255, 255):
+        #     print("Shit, man! " + str(sigma))
+        #
+        # if sigma == 0:
+        #     return pygame.Color('yellow')
+        # elif sigma < 0:
+        #     return pygame.Color('red')
+        # elif sigma > 0:
+        #     return pygame.Color('blue')
+        # else:
+        #     raise 'ejnye'
 
     @staticmethod
     def __accuracy(start_pos, new_pos, user_pos):
