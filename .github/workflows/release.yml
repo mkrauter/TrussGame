@@ -1,0 +1,73 @@
+name: Release Windows binary
+
+# Push a tag to cut a release:
+#
+#     git tag v1.0 && git push origin v1.0
+#
+# The exe is built on a clean runner from the tagged commit, so what ships is
+# always reproducible from source rather than from whatever happened to be in a
+# working tree. Run without a tag (workflow_dispatch) to test the build; that
+# uploads a workflow artifact and publishes nothing.
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # 3.10 is not a default -- it is the version the pins require. numpy is
+      # held at 1.24.1 for truss_game_original.py and publishes no Windows wheel
+      # above cp311, and the whole point of the exact pins is that the renderer
+      # must keep producing the pixels truss_game_AI_model.tflite was trained on.
+      # See the comments in requirements.txt before changing this.
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Build
+        run: pyinstaller --noconfirm --clean truss_game_AI.spec
+
+      # The game is an infinite pygame loop, so "it works" means "it is still
+      # alive after startup". A packaging failure -- a missing hidden import, or
+      # the .tflite not making it into the bundle -- exits within a second or two.
+      - name: Smoke test
+        shell: pwsh
+        run: |
+          if (-not (Test-Path dist/truss_game_AI.exe)) { throw 'exe was not produced' }
+          $env:SDL_VIDEODRIVER = 'dummy'
+          $p = Start-Process -FilePath dist/truss_game_AI.exe -PassThru
+          Start-Sleep -Seconds 20
+          if ($p.HasExited) { throw "exe exited early with code $($p.ExitCode)" }
+          Stop-Process -Id $p.Id -Force
+          $mb = [math]::Round((Get-Item dist/truss_game_AI.exe).Length / 1MB, 1)
+          Write-Output "started cleanly, $mb MB"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: truss_game_AI-windows
+          path: dist/truss_game_AI.exe
+          if-no-files-found: error
+
+      - name: Publish release
+        if: startsWith(github.ref, 'refs/tags/')
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create $env:GITHUB_REF_NAME dist/truss_game_AI.exe `
+            --title "Truss Game $env:GITHUB_REF_NAME" `
+            --notes-file .github/release-notes.md

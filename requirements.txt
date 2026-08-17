@@ -8,10 +8,34 @@
 # int() on a size-1 array, and np.delete([range(n)], ...). Raising this pin
 # will stop that file running. ai-edge-litert asks only for numpy>=1.23.2, so
 # the pin is compatible.
+# scipy and pygame are pinned to protect the model, not for packaging reasons.
+# truss_game_AI_model.tflite is the only model that will ever exist for this
+# game -- there are no plans to retrain -- so whatever renders its input is part
+# of its contract, and drifting the pixels has no retraining to absorb it.
+#
+# Measured 2026-08-17 on five fixture trusses, pygame 2.1.2 vs 2.6.1:
+#   - pygame 2.6.1 ships SDL 2.28.4 instead of 2.0.18 and rasterises polygons
+#     differently. Exactly 30 pixels per frame flip from grey25 background to
+#     support-marker green: the triangle edges now include boundary pixels that
+#     2.1.2 excluded.
+#   - Feeding both renders to the model, 4 of 5 predictions were bit-identical
+#     and one moved 17.9 px -- comparable to the model's own median
+#     localisation error.
+# scipy is pinned for the same reason at one remove: Delaunay decides which
+# elements get drawn, so a Qhull change could alter the geometry. Triangulations
+# did match across the five fixtures, but the upside of bumping is zero.
+#
+# So: do not raise these two to modernise. Only raise them alongside a new model
+# trained on the new renderer.
 numpy==1.24.1
 scipy==1.10.0
 pygame==2.1.2
-pyinstaller==5.7.0
+
+# Packaging only -- bundles whatever pygame is installed and never touches
+# rendering, so this one is safe to keep current. Raised from 5.7.0 (Dec 2022)
+# on 2026-08-17; the old truss_game_AI.spec could not build on this machine and
+# used Analysis() arguments PyInstaller 6 removed.
+pyinstaller==6.22.1
 
 # LiteRT -- the renamed TensorFlow Lite, ~17 MB. Replaces full tensorflow
 # (~996 MB installed), which was only ever a dependency because tflite_runtime
