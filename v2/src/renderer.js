@@ -1,4 +1,4 @@
-import { WINDOW, RENDER } from './config.js';
+import { WINDOW, RENDER, HUD } from './config.js';
 
 // Everything here takes a plain CanvasRenderingContext2D, so the same code
 // drives the on-screen game and a headless canvas in the corpus generator.
@@ -52,6 +52,39 @@ export function drawCross(ctx, p, color, size = 40) {
   ctx.moveTo(p[0], p[1] - offset);
   ctx.lineTo(p[0], p[1] + offset);
   ctx.stroke();
+}
+
+// Score, round tally and prompt, drawn in the margins outside the model crop.
+// Kept out of drawScene on purpose: the corpus generator must never render it.
+export function drawHud(ctx, { accuracy, rounds, average, prompt }) {
+  ctx.textBaseline = 'alphabetic';
+
+  // Nothing at all until there is a real score -- before the first guess of the
+  // session there is nothing to measure, and a placeholder glyph sitting alone
+  // in the margin reads as an artefact rather than as "not yet".
+  if (accuracy !== null) {
+    ctx.font = HUD.scoreFont;
+    ctx.fillStyle = HUD.color;
+    ctx.textAlign = 'left';
+    ctx.fillText(`${accuracy.toFixed(0)}%`, HUD.margin, HUD.topBaseline);
+  }
+
+  if (rounds > 0) {
+    ctx.font = HUD.labelFont;
+    ctx.fillStyle = HUD.dimColor;
+    ctx.textAlign = 'right';
+    const plural = rounds === 1 ? '' : 's';
+    ctx.fillText(
+      `${rounds} round${plural} · average ${average.toFixed(1)}%`,
+      WINDOW.width - HUD.margin,
+      HUD.topBaseline
+    );
+  }
+
+  ctx.font = HUD.labelFont;
+  ctx.fillStyle = HUD.dimColor;
+  ctx.textAlign = 'center';
+  ctx.fillText(prompt, WINDOW.width / 2, HUD.bottomBaseline);
 }
 
 // White at zero stress, red in compression, blue in tension.

@@ -1,6 +1,6 @@
 import { WINDOW, PHYSICS, ANIMATION } from './config.js';
 import { Truss, accuracy } from './truss.js';
-import { drawScene, drawCross } from './renderer.js';
+import { drawScene, drawCross, drawHud } from './renderer.js';
 
 // Human-only game loop for now. The AI slot -- capture the CROP region, run
 // the model, draw a second cross -- goes in where noted below.
@@ -10,17 +10,14 @@ canvas.width = WINDOW.width;
 canvas.height = WINDOW.height;
 const ctx = canvas.getContext('2d');
 
-const hud = {
-  userScore: document.getElementById('user-score'),
-  userAvg: document.getElementById('user-average'),
-  prompt: document.getElementById('prompt'),
-};
-
 let truss = new Truss();
 let guess = null;
 let time = 0;
 let rounds = 0;
 let averageAccuracy = 0;
+// Live while the load ramps, then frozen at the settled score once the round is
+// scored, so the last result stays on screen during the next setup.
+let shownAccuracy = null;
 
 canvas.addEventListener('click', (event) => {
   const rect = canvas.getBoundingClientRect();
@@ -39,27 +36,35 @@ canvas.addEventListener('click', (event) => {
     const score = accuracy(truss.loadedStart, truss.loadedEnd, guess);
     rounds += 1;
     averageAccuracy += (score - averageAccuracy) / rounds;
-    hud.userScore.textContent = `${score.toFixed(0)}%`;
-    hud.userAvg.textContent = `${rounds} round${rounds === 1 ? '' : 's'}, average ${averageAccuracy.toFixed(1)}%`;
+    shownAccuracy = score;
     truss = new Truss();
     guess = null;
   }
 });
 
 function frame() {
-  if (guess !== null && time < ANIMATION.settleTime) {
-    truss.calculate(PHYSICS.force * ANIMATION.ramp(time));
-    time += 1;
+  if (guess !== null) {
+    if (time < ANIMATION.settleTime) {
+      truss.calculate(PHYSICS.force * ANIMATION.ramp(time));
+      time += 1;
+    }
+    // Recomputed every frame against the current deformed position, so the
+    // number tracks the oscillation as it decays rather than only appearing
+    // once the round ends.
+    shownAccuracy = accuracy(truss.loadedStart, truss.loadedEnd, guess);
   }
 
   drawScene(ctx, truss);
+  if (guess !== null) drawCross(ctx, guess, 'white');
 
-  if (guess !== null) {
-    drawCross(ctx, guess, 'white');
-    hud.prompt.textContent = 'Click anywhere to score and continue';
-  } else {
-    hud.prompt.textContent = 'Click where you think the blue node will move';
-  }
+  drawHud(ctx, {
+    accuracy: shownAccuracy,
+    rounds,
+    average: averageAccuracy,
+    prompt: guess === null
+      ? 'Click where you think the blue node will move'
+      : 'Click anywhere to score and continue',
+  });
 
   requestAnimationFrame(frame);
 }
