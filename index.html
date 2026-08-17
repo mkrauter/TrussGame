@@ -202,9 +202,13 @@
     <tbody>
       <tr class="best"><td>Guess straight down, by the average travel</td><td class="num">59.7%</td><td class="num">66.5%</td></tr>
       <tr><td>The trained model</td><td class="num">55.6%</td><td class="num">59.4%</td></tr>
-      <tr><td>Assume the node never moves</td><td class="num">0.0%</td><td class="num">0.0%</td></tr>
+      <tr><td>Click on the node where it starts</td><td class="num">0.0%</td><td class="num">0.0%</td></tr>
     </tbody>
   </table>
+
+  <p class="sub">Scores are normalised by how far the node actually travelled,
+  so clicking its starting point scores zero by definition — that row is the
+  floor, not a bad result.</p>
 
   <p>The model finds the loaded node almost perfectly from pixels — 0.97
   correlation with its true position — and then essentially drops it by the
