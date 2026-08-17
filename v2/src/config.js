@@ -57,10 +57,22 @@ export const RENDER = {
 // -- does not draw any of this.
 export const HUD = {
   topBaseline: 44,
-  bottomBaseline: 872,
+  // Two stacked lines in the bottom band: the prompt, then the scoring hint
+  // beneath it. The band is only 64px tall (836..900), so these are tuned to
+  // sit inside it -- re-check the headroom if the fonts change.
+  bottomBaseline: 862,
+  hintBaseline: 886,
   margin: 26,
   scoreFont: '600 34px "Segoe UI", system-ui, sans-serif',
   labelFont: '17px "Segoe UI", system-ui, sans-serif',
+  hintFont: '13px "Segoe UI", system-ui, sans-serif',
   color: '#f0f0f0',
   dimColor: 'rgba(240, 240, 240, 0.65)',
+  hintColor: 'rgba(240, 240, 240, 0.42)',
 };
+
+// What the percentage actually means. The metric is relative -- the error is
+// divided by how far the node travelled -- which is the part nobody guesses,
+// so it is worth saying on screen rather than only in the README.
+export const SCORING_HINT =
+  '100% = exactly where it settles  ·  0% = missed by as far as it moved';
