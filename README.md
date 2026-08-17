@@ -63,9 +63,13 @@ Measured on 150 freshly generated trusses it had never seen:
 |---|---|---|
 | guess straight down by the average travel | **59.7%** | **66.5%** |
 | the model | 55.6% | 59.4% |
-| assume the node does not move | 0.0% | 0.0% |
+| click on the node where it starts | 0.0% | 0.0% |
 
-So it loses to a one-line heuristic. Decomposing it explains why: the model
+Scores are normalised by how far the node actually travelled, so the last row is
+the metric's floor rather than a bad result — clicking the starting point scores
+zero by definition.
+
+So the model loses to a one-line heuristic. Decomposing it explains why: the model
 locates the loaded node almost perfectly from pixels alone — 0.97 correlation
 with the true position — but its displacement prediction scores a negative R²
 against simply always guessing the mean. It learned to find the blue node and
