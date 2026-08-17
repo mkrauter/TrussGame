@@ -1,4 +1,4 @@
-import { WINDOW, RENDER, HUD } from './config.js';
+import { WINDOW, RENDER, HUD, SCORING_HINT } from './config.js';
 
 // Everything here takes a plain CanvasRenderingContext2D, so the same code
 // drives the on-screen game and a headless canvas in the corpus generator.
@@ -85,6 +85,10 @@ export function drawHud(ctx, { accuracy, rounds, average, prompt }) {
   ctx.fillStyle = HUD.dimColor;
   ctx.textAlign = 'center';
   ctx.fillText(prompt, WINDOW.width / 2, HUD.bottomBaseline);
+
+  ctx.font = HUD.hintFont;
+  ctx.fillStyle = HUD.hintColor;
+  ctx.fillText(SCORING_HINT, WINDOW.width / 2, HUD.hintBaseline);
 }
 
 // White at zero stress, red in compression, blue in tension.
