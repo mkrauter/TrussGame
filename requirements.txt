@@ -1,6 +1,19 @@
-numpy
-scipy
-pygame
-pyinstaller
---extra-index-url https://google-coral.github.io/py-repo/
-tflite_runtime
+# Frozen 2026-08-16 against the working environment (Python 3.10.6, Windows).
+#
+# Python 3.10 is the floor: ai-edge-litert publishes no cp39 wheel, which is
+# what forced the interpreter upgrade from 3.9.
+#
+# numpy stays below 1.25 on purpose. truss_game_original.py is a frozen
+# historic reference and relies on two idioms numpy deprecated in 1.25:
+# int() on a size-1 array, and np.delete([range(n)], ...). Raising this pin
+# will stop that file running. ai-edge-litert asks only for numpy>=1.23.2, so
+# the pin is compatible.
+numpy==1.24.1
+scipy==1.10.0
+pygame==2.1.2
+pyinstaller==5.7.0
+
+# LiteRT -- the renamed TensorFlow Lite, ~17 MB. Replaces full tensorflow
+# (~996 MB installed), which was only ever a dependency because tflite_runtime
+# stopped shipping Windows wheels. Loads truss_game_AI_model.tflite unchanged.
+ai-edge-litert==2.2.0
