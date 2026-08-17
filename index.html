@@ -1,35 +1,222 @@
 <!doctype html>
 <!--
-  GitHub Pages serves this repository from its root, and the playable game lives
-  in v2/. Without this file the bare project URL 404s, which is what anyone
-  typing or sharing mkrauter.github.io/TrussGame/ would hit first.
+  Landing page for the GitHub Pages site. Pages serves this repository from its
+  root, so without an index.html here the bare project URL 404s.
 
-  A meta refresh rather than JavaScript, so it works regardless, with a visible
-  link as the fallback if the redirect is blocked.
+  The playable game itself lives in v2/. Colours are taken from the game: the
+  loaded node's blue and the support triangles' green.
 -->
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Truss game</title>
-<link rel="canonical" href="https://mkrauter.github.io/TrussGame/v2/">
-<meta http-equiv="refresh" content="0; url=./v2/">
+<meta name="description" content="A random truss is loaded at one node. Guess where it ends up — an AI opponent guesses too, from a screenshot alone.">
+
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%23404040'/><polygon points='16,26 6,8 26,8' fill='%236c6cd2'/></svg>">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="Truss game">
+<meta property="og:description" content="Guess where the loaded node of a random truss will move. An AI opponent guesses too, from a screenshot alone.">
+<meta property="og:image" content="https://mkrauter.github.io/TrussGame/images/screenshot.jpg">
+<meta property="og:url" content="https://mkrauter.github.io/TrussGame/">
+<meta name="twitter:card" content="summary_large_image">
+
 <style>
-  :root { color-scheme: dark; }
+  :root {
+    color-scheme: dark;
+    --bg: #2b2b2b;
+    --surface: #404040;
+    --text: #f0f0f0;
+    --muted: #b0b0b0;
+    --blue: #6c6cd2;
+    --blue-bright: #9d9dea;
+    --green: #4f9f4f;
+    --line: #565656;
+  }
+
+  * { box-sizing: border-box; }
+
   body {
     margin: 0;
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #404040;
-    color: #f0f0f0;
-    font: 16px/1.5 "Segoe UI", system-ui, sans-serif;
-    text-align: center;
+    padding: 48px 24px 64px;
+    background: var(--bg);
+    color: var(--text);
+    font: 17px/1.6 "Segoe UI", system-ui, -apple-system, sans-serif;
   }
-  a { color: #9db8ff; }
+
+  main { max-width: 720px; margin: 0 auto; }
+
+  h1 {
+    margin: 0 0 8px;
+    font-size: clamp(2.2rem, 6vw, 3rem);
+    letter-spacing: -0.02em;
+  }
+
+  .tagline {
+    margin: 0 0 8px;
+    font-size: clamp(1.05rem, 2.6vw, 1.25rem);
+    color: var(--text);
+  }
+
+  .sub {
+    margin: 0 0 32px;
+    color: var(--muted);
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 40px;
+  }
+
+  .btn {
+    display: inline-block;
+    padding: 13px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    border: 1px solid transparent;
+    transition: background-color 0.15s, border-color 0.15s, transform 0.15s;
+  }
+  .btn:hover { transform: translateY(-1px); }
+
+  .btn-primary { background: var(--blue); color: #fff; }
+  .btn-primary:hover { background: var(--blue-bright); }
+
+  .btn-secondary { border-color: var(--line); color: var(--text); }
+  .btn-secondary:hover { border-color: var(--muted); background: #383838; }
+
+  figure { margin: 0 0 12px; }
+
+  img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+  }
+
+  figcaption {
+    margin-top: 10px;
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+
+  h2 {
+    margin: 44px 0 12px;
+    font-size: 1.2rem;
+    letter-spacing: 0.01em;
+  }
+
+  p { margin: 0 0 16px; }
+
+  a { color: var(--blue-bright); }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin: 0 0 16px;
+    padding: 16px;
+    background: var(--surface);
+    border-radius: 10px;
+    font-size: 0.95rem;
+  }
+  .legend span { display: flex; align-items: center; gap: 9px; }
+  .swatch { width: 0; height: 0; flex: none; }
+  .swatch.up {
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 15px solid var(--green);
+  }
+  .swatch.down {
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 15px solid var(--blue);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0 0 16px;
+    font-size: 0.95rem;
+  }
+  th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); }
+  th { color: var(--muted); font-weight: 600; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  tr.best td { color: var(--blue-bright); font-weight: 600; }
+
+  footer {
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+    font-size: 0.92rem;
+  }
+  footer a { margin-right: 18px; }
 </style>
 </head>
 <body>
-  <p>Taking you to <a href="./v2/">the truss game</a>&hellip;</p>
+<main>
+
+  <h1>Truss game</h1>
+  <p class="tagline">A random truss is loaded at one node. Guess where that node
+  ends up once it settles.</p>
+  <p class="sub">An AI opponent guesses too — from a screenshot alone. It never
+  sees the coordinates or the topology, which is what makes the contest fair.</p>
+
+  <div class="actions">
+    <a class="btn btn-primary" href="./v2/">Play in your browser</a>
+    <a class="btn btn-secondary" href="https://github.com/mkrauter/TrussGame/releases/latest">Download for Windows</a>
+  </div>
+
+  <figure>
+    <img src="./images/screenshot.jpg" alt="A truss of white lines on a grey background, with two green support triangles and one blue loaded node, and the score reading You 1, AI 2.">
+    <figcaption>The Windows version, mid-match against the AI.</figcaption>
+  </figure>
+
+  <div class="legend">
+    <span><i class="swatch up"></i> pinned supports</span>
+    <span><i class="swatch down"></i> the loaded node — guess where it goes</span>
+  </div>
+
+  <h2>How it works</h2>
+  <p>Ten nodes are scattered in a box and connected by a Delaunay triangulation.
+  The two outermost nodes are pinned, and one of the rest is pulled straight
+  down. The structure is solved with linear finite elements, so members turn red
+  in compression and blue in tension as the load ramps on.</p>
+  <p>Displacements come out around half the size of the structure itself, which
+  is why the result looks so dramatic — and why guessing it is harder than it
+  first appears.</p>
+
+  <h2>How good is the AI?</h2>
+  <p>Worse than one line of arithmetic. Measured over 150 trusses it had never
+  seen:</p>
+
+  <table>
+    <thead>
+      <tr><th>Predictor</th><th class="num">Mean</th><th class="num">Median</th></tr>
+    </thead>
+    <tbody>
+      <tr class="best"><td>Guess straight down, by the average travel</td><td class="num">59.7%</td><td class="num">66.5%</td></tr>
+      <tr><td>The trained model</td><td class="num">55.6%</td><td class="num">59.4%</td></tr>
+      <tr><td>Assume the node never moves</td><td class="num">0.0%</td><td class="num">0.0%</td></tr>
+    </tbody>
+  </table>
+
+  <p>The model finds the loaded node almost perfectly from pixels — 0.97
+  correlation with its true position — and then essentially drops it by the
+  average amount. That earns most of the score and none of the mechanics. Which
+  is the interesting part: the picture contains everything needed to solve it,
+  so the difficulty is relational rather than visual.</p>
+
+  <footer>
+    <a href="https://github.com/mkrauter/TrussGame">Source on GitHub</a>
+    <a href="https://marton-krauter.medium.com/is-a-fruit-fly-a-smarter-engineer-than-you-850db1031fe8">Read the write-up</a>
+  </footer>
+
+</main>
 </body>
 </html>
