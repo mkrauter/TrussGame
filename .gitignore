@@ -6,10 +6,16 @@ __pycache__/
 venv/
 env/
 
-# PyInstaller intermediate output.
-# dist/ is NOT ignored: dist/truss_game_AI.exe and truss_game_AI.spec are
-# tracked deliberately.
+# PyInstaller output. Neither directory is tracked any more -- the Windows
+# binary is published as a GitHub Releases asset by .github/workflows/release.yml
+# instead of being committed. truss_game_AI.spec lives at the repo root and IS
+# tracked; it is the build recipe, not build output.
+#
+# Note the 2023 exe remains in git history (it was added in the initial commit),
+# so untracking it does not shrink an existing clone -- only a history rewrite
+# would, and that is not worth doing.
 build/
+dist/
 
 # JetBrains
 .idea/
