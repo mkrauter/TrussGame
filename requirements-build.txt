@@ -1,0 +1,18 @@
+# Everything needed to build the Windows binary:
+#
+#     pip install -r requirements-build.txt
+#     pyinstaller truss_game_AI.spec
+#
+# The runtime pins come first, and they matter to the build as much as to
+# running from source -- PyInstaller bundles whatever pygame and scipy are
+# installed, so building against different versions would ship an exe whose
+# pixels no longer match what truss_game_AI_model.tflite was trained on. See the
+# comments in requirements.txt.
+-r requirements.txt
+
+# Packaging only: bundles whatever pygame is installed and never touches
+# rendering, so unlike the runtime pins this one is safe to keep current.
+# Raised from 5.7.0 (Dec 2022) on 2026-08-17, when the old truss_game_AI.spec
+# turned out to be unbuildable and used Analysis() arguments PyInstaller 6
+# removed.
+pyinstaller==6.22.1

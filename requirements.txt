@@ -31,11 +31,9 @@ numpy==1.24.1
 scipy==1.10.0
 pygame==2.1.2
 
-# Packaging only -- bundles whatever pygame is installed and never touches
-# rendering, so this one is safe to keep current. Raised from 5.7.0 (Dec 2022)
-# on 2026-08-17; the old truss_game_AI.spec could not build on this machine and
-# used Analysis() arguments PyInstaller 6 removed.
-pyinstaller==6.22.1
+# PyInstaller is NOT here on purpose -- it is a build tool, not a runtime
+# dependency, and nobody installing this to play the game needs it. It lives in
+# requirements-build.txt.
 
 # LiteRT -- the renamed TensorFlow Lite, ~17 MB. Replaces full tensorflow
 # (~996 MB installed), which was only ever a dependency because tflite_runtime
