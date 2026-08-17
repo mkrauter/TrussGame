@@ -63,11 +63,10 @@ Measured on 150 freshly generated trusses it had never seen:
 |---|---|---|
 | guess straight down by the average travel | **59.7%** | **66.5%** |
 | the model | 55.6% | 59.4% |
-| click on the node where it starts | 0.0% | 0.0% |
 
-Scores are normalised by how far the node actually travelled, so the last row is
-the metric's floor rather than a bad result — clicking the starting point scores
-zero by definition.
+Scoring: 100% means you clicked exactly where the node settled. 0% means you
+missed by at least as far as the node travelled. The score is the fraction of
+its movement you predicted, not a distance in pixels.
 
 So the model loses to a one-line heuristic. Decomposing it explains why: the model
 locates the loaded node almost perfectly from pixels alone — 0.97 correlation
