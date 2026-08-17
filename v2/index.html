@@ -6,38 +6,36 @@
 <title>Truss Game v2</title>
 <style>
   :root { color-scheme: dark; }
-  body {
+  /* Same colour as the canvas background (RENDER.background in src/config.js),
+     so the letterboxing around the square canvas is invisible and the page
+     reads as one surface. */
+  html, body {
+    height: 100%;
     margin: 0;
-    min-height: 100vh;
+    background: #404040;
+    overflow: hidden;
+  }
+  body {
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 12px;
-    background: #1b1b1b;
-    color: #e8e8e8;
-    font: 16px/1.4 "Segoe UI", system-ui, sans-serif;
   }
-  #hud { display: flex; gap: 24px; align-items: baseline; }
-  #user-score { font-size: 40px; font-weight: 600; min-width: 3ch; }
-  #user-average, #prompt { opacity: 0.7; }
-  /* Backing store stays exactly 900x900 so the model crop is pixel-exact;
-     CSS only scales the display. */
+  /* Backing store stays exactly 900x900 so the model crop is pixel-exact; CSS
+     only scales the display. Square and clamped to the shorter viewport axis,
+     so the whole game fits without scrolling -- the HUD is drawn inside the
+     canvas rather than as sibling elements that would push it off screen. */
   canvas {
-    width: min(90vh, 90vw);
-    height: min(90vh, 90vw);
-    border-radius: 6px;
-    cursor: crosshair;
+    display: block;
+    width: min(100vh, 100vw);
+    height: min(100vh, 100vw);
+    /* Plain arrow, not crosshair: the guess marker is itself a cross, and two
+       crosses on screen read as one thing duplicated. */
+    cursor: default;
   }
 </style>
 </head>
 <body>
-  <div id="hud">
-    <span id="user-score">&mdash;</span>
-    <span id="user-average"></span>
-  </div>
   <canvas id="game"></canvas>
-  <div id="prompt"></div>
   <script type="module" src="./src/main.js"></script>
 </body>
 </html>

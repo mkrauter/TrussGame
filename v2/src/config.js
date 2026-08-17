@@ -49,3 +49,18 @@ export const RENDER = {
   // tree, 3 in the notebook). One place now.
   stressScale: 5,
 };
+
+// The HUD is drawn onto the canvas so the whole game is one square element that
+// fits a 1080px screen. It is deliberately confined to the bands above and
+// below the CROP region (which spans 68..836), so overlay text can never end up
+// in a training image. drawScene() -- the only thing the corpus generator calls
+// -- does not draw any of this.
+export const HUD = {
+  topBaseline: 44,
+  bottomBaseline: 872,
+  margin: 26,
+  scoreFont: '600 34px "Segoe UI", system-ui, sans-serif',
+  labelFont: '17px "Segoe UI", system-ui, sans-serif',
+  color: '#f0f0f0',
+  dimColor: 'rgba(240, 240, 240, 0.65)',
+};
