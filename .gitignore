@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# PyInstaller intermediate output.
+# dist/ is NOT ignored: dist/truss_game_AI.exe and truss_game_AI.spec are
+# tracked deliberately.
+build/
+
+# JetBrains
+.idea/
+
+# Node (v2)
+node_modules/
+
+# Colab training intermediates. These are exported per training run and are
+# never referenced by the game -- only the .tflite is.
+# Note the trailing slash on truss_game_AI_model/: it matches the SavedModel
+# directory, NOT the deployed truss_game_AI_model.tflite, which stays tracked.
+truss_game_AI_model/
+retrained_*/
+predict.npy
+test_model.tflite
+
+# Debug screenshots dumped by __predict during model-orientation testing
+test*.png
