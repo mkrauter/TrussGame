@@ -154,26 +154,41 @@ function drawVision() {
   ctx.restore();
 }
 
-function drawLabels() {
+// The truss occupies y >= 100 and the loaded node's marker points 20px up from
+// its node, so anything drawn below y = 80 can end up tangled in the structure.
+// Two rows fit above that line and three do not, which is what put the running
+// averages on top of the truss; they now share the label row.
+const ROW_LABEL = 30;
+const ROW_VALUE = 68;
+const BAND = 80;
+
+// Repainted before the text so the truss passes cleanly underneath rather than
+// through the glyphs. It hides nothing -- no member reaches this high.
+function drawBand() {
+  ctx.fillStyle = RENDER.background;
+  ctx.fillRect(0, 0, WINDOW.width, BAND);
+}
+
+function drawLabels(leftNote, rightNote) {
   ctx.font = HUD.labelFont;
   ctx.fillStyle = HUD.dimColor;
   ctx.textAlign = 'center';
-  ctx.fillText('You', 150, HUD.topBaseline);
-  ctx.fillText('AI', WINDOW.width - 150, HUD.topBaseline);
+  ctx.fillText(leftNote ? `You  ·  ${leftNote}` : 'You', 150, ROW_LABEL);
+  ctx.fillText(rightNote ? `${rightNote}  ·  AI` : 'AI', WINDOW.width - 150, ROW_LABEL);
 }
 
 function drawBigPair(left, right) {
   ctx.font = HUD.scoreFont;
   ctx.fillStyle = HUD.color;
   ctx.textAlign = 'center';
-  ctx.fillText(left, 150, HUD.topBaseline + 52);
-  ctx.fillText(right, WINDOW.width - 150, HUD.topBaseline + 52);
+  ctx.fillText(left, 150, ROW_VALUE);
+  ctx.fillText(right, WINDOW.width - 150, ROW_VALUE);
 }
 
 // A bar leaning toward whoever is ahead, length proportional to the gap.
 function drawLeadBar(user, ai) {
   const centre = WINDOW.width / 2;
-  const top = HUD.topBaseline + 40;
+  const top = 52;
   const length = Math.min(Math.abs(user - ai) * 2.2, 200);
   ctx.fillStyle = user >= ai ? '#5cc46a' : '#d86a6a';
   ctx.fillRect(user >= ai ? centre - length : centre, top, length, 7);
@@ -183,31 +198,28 @@ function drawLeadBar(user, ai) {
 
 function drawHud() {
   ctx.textBaseline = 'alphabetic';
-  drawLabels();
+  drawBand();
+
+  const notes = rounds > 0
+    ? [`${averageUser.toFixed(1)}% avg`, `${averageAI.toFixed(1)}% avg`]
+    : [null, null];
+  drawLabels(notes[0], notes[1]);
+
+  ctx.font = HUD.labelFont;
+  ctx.fillStyle = HUD.dimColor;
+  ctx.textAlign = 'center';
 
   if (guess !== null && shown) {
-    ctx.font = HUD.labelFont;
-    ctx.fillStyle = HUD.dimColor;
-    ctx.textAlign = 'center';
-    ctx.fillText('Accuracy', WINDOW.width / 2, HUD.topBaseline);
+    ctx.fillText('Accuracy', WINDOW.width / 2, ROW_LABEL);
     drawBigPair(`${shown.user.toFixed(0)}%`, `${shown.ai.toFixed(0)}%`);
     drawLeadBar(shown.user, shown.ai);
   } else {
-    ctx.font = HUD.labelFont;
-    ctx.fillStyle = HUD.dimColor;
-    ctx.textAlign = 'center';
-    ctx.fillText('Score', WINDOW.width / 2, HUD.topBaseline);
+    ctx.fillText('Score', WINDOW.width / 2, ROW_LABEL);
     drawBigPair(`${scoreUser}`, `${scoreAI}`);
-    if (rounds > 0) {
-      ctx.font = HUD.labelFont;
-      ctx.fillStyle = HUD.dimColor;
-      ctx.fillText(`${averageUser.toFixed(1)}% avg`, 150, HUD.topBaseline + 80);
-      ctx.fillText(`${averageAI.toFixed(1)}% avg`, WINDOW.width - 150, HUD.topBaseline + 80);
-    }
     if (draws > 0) {
       ctx.font = HUD.labelFont;
       ctx.fillStyle = HUD.dimColor;
-      ctx.fillText(`${draws} draw${draws === 1 ? '' : 's'}`, WINDOW.width / 2, HUD.topBaseline + 52);
+      ctx.fillText(`${draws} draw${draws === 1 ? '' : 's'}`, WINDOW.width / 2, ROW_VALUE);
     }
   }
 
