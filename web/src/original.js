@@ -25,7 +25,10 @@ const TRUSS_OPTIONS = {
   minDistance: 0,
   stressFrom: 'deformed',
 };
-const STYLE = { lineWidth: 1, stressScale: 3 };
+// Thickness matches v2 and v3 so the three look like one game; the original's
+// own 1px aalines are the one quirk not reproduced. The stress scale is its
+// own, which is what actually makes its colours look different.
+const STYLE = { stressScale: 3 };
 
 // f = force - force * exp(-0.015 t) * cos(0.1 t), and nothing ever stops it.
 const ramp = (t) => 1 - Math.exp(-0.015 * t) * Math.cos(0.1 * t);

@@ -18,7 +18,8 @@ const ctx = canvas.getContext('2d', { willReadFrequently: true });
 const model = await TrussV2Model.load('../web/src/model/trussv2.json');
 
 const TRUSS_OPTIONS = { offset: [100, 150], minDistance: 100 };
-const STYLE = { lineWidth: 1, stressScale: 5 };
+// Matches web/src/v2game.js: v3's thickness, not pygame's 1px aaline.
+const STYLE = {};
 
 window.evaluateRange = function (start, count, seedBase) {
   const rows = [];

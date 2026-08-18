@@ -17,7 +17,7 @@ Read more about the idea in
 | version | what it is | AI score |
 |---|---|---|
 | **original** | the 2019 game, human only | — |
-| **v2** | the first AI opponent, a 2023 convolutional net | 61.6% |
+| **v2** | the first AI opponent, a 2023 convolutional net | 59.8% |
 | **v3** | the current AI: read the screen, recover the structure, solve it | **96.4%** |
 
 All three are playable in the browser, no download:
@@ -80,18 +80,21 @@ its movement you predicted, not a distance in pixels.
 |---|---|---|
 | guess the starting point — never move | 0% | 0% |
 | guess straight down by the average travel | 59.5% | 66.5% |
-| **v2**, the 2023 model | 61.6% | 67.5% |
+| **v2**, the 2023 model | 59.8% | 66.6% |
 | **v3**, the current model | **96.4%** | **97.4%** |
 | a perfect solver, reading the screen as well as v3 does | ~98% | — |
 
-**v2 barely beats a one-line heuristic.** Decomposing it explains why: it locates
+**v2 does not beat a one-line heuristic.** Decomposing it explains why: it locates
 the loaded node almost perfectly from pixels alone — 0.97 correlation with the
 true position — but its displacement prediction scores a negative R² against
-simply always guessing the mean. It moves the node 142px where the truth
+simply always guessing the mean. It moves the node 137px where the truth
 averages 152px. It learned to find the blue node and drop it by roughly the
 average amount, which is most of the game's score and none of the mechanics.
 The figure quoted in the v2 notebook was measured on training data, and the
-notebook predates the deployed model and does not reproduce it.
+notebook predates the deployed model and does not reproduce it. The browser port
+draws members at v3's thickness rather than pygame's hairlines so the three
+versions look alike; that costs v2 1.8 points, and it scores 61.6% if drawn
+faithfully.
 
 **v3 does the mechanics.** It takes the same screenshot, but instead of
 regressing an answer straight from pixels it works in two stages: a small
