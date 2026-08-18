@@ -1,0 +1,58 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>v2 evaluation harness</title>
+<canvas id="scene" width="900" height="900"></canvas>
+<script type="module">
+// Scores the v2 model as the browser port actually plays it: v2's own truss
+// parameters, v2's own hairline rendering, and the same clean crop the game
+// hands the model. The published 58.7% was measured on pygame renders, so this
+// is the honest number for this page.
+import { Truss, accuracy } from '../web/src/truss.js';
+import { mulberry32 } from '../web/src/random.js';
+import { PHYSICS, CROP } from '../web/src/config.js';
+import { drawScene } from '../web/src/renderer.js';
+import { TrussV2Model } from '../web/src/tflite.js';
+
+const canvas = document.getElementById('scene');
+const ctx = canvas.getContext('2d', { willReadFrequently: true });
+const model = await TrussV2Model.load('../web/src/model/trussv2.json');
+
+const TRUSS_OPTIONS = { offset: [100, 150], minDistance: 100 };
+const STYLE = { lineWidth: 1, stressScale: 5 };
+
+window.evaluateRange = function (start, count, seedBase) {
+  const rows = [];
+  for (let i = 0; i < count; i++) {
+    const seed = seedBase + start + i;
+    const truss = new Truss(mulberry32(seed), TRUSS_OPTIONS);
+    drawScene(ctx, truss, STYLE);
+
+    const { data } = ctx.getImageData(CROP.x, CROP.y, CROP.width, CROP.height);
+    const rgb = new Float32Array(CROP.width * CROP.height * 3);
+    for (let a = 0, b = 0; a < data.length; a += 4, b += 3) {
+      rgb[b] = data[a];
+      rgb[b + 1] = data[a + 1];
+      rgb[b + 2] = data[a + 2];
+    }
+
+    const t0 = performance.now();
+    const click = model.predict({ data: rgb, height: CROP.height, width: CROP.width, channels: 3 });
+    const ms = performance.now() - t0;
+
+    truss.calculate(PHYSICS.force);
+    rows.push({
+      seed,
+      score: accuracy(truss.loadedStart, truss.loadedEnd, click),
+      ms,
+      // How far the prediction is from the node's *starting* point: v1's
+      // measured failure was that it located the node well and barely moved it.
+      fromStart: Math.hypot(click[0] - truss.loadedStart[0], click[1] - truss.loadedStart[1]),
+      travelled: Math.hypot(truss.loadedEnd[0] - truss.loadedStart[0],
+                            truss.loadedEnd[1] - truss.loadedStart[1]),
+    });
+  }
+  return rows;
+};
+
+window.harnessReady = true;
+</script>

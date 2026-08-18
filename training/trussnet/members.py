@@ -16,7 +16,7 @@ from __future__ import annotations
 
 import numpy as np
 
-# grey25, matching RENDER.background in v2/src/config.js.
+# grey25, matching RENDER.background in web/src/config.js.
 BACKGROUND = np.array([64, 64, 64], dtype=np.int16)
 
 # Node markers are 20px tall and members converge at joints, so both ends of a

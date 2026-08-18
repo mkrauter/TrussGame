@@ -6,7 +6,7 @@ Weights go out as base64 little-endian float32 rather than JSON numbers: exact,
 and about a third of the size. The layer list is emitted in execution order so
 the JS side never has to know PyTorch's module naming -- it just walks it.
 
-The point of this file is that v2/src/gnn.js and trussnet/gnn.py must compute
+The point of this file is that web/src/gnn.js and trussnet/gnn.py must compute
 the same function. `verify_export.py` checks that they do, on real trusses,
 rather than trusting that they do.
 """
@@ -52,7 +52,7 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument('checkpoint')
     p.add_argument('--out', default=str(Path(__file__).resolve().parent.parent
-                                       / 'v2' / 'src' / 'model' / 'trussgnn.json'))
+                                       / 'web' / 'src' / 'model' / 'trussgnn.json'))
     args = p.parse_args()
 
     ck = torch.load(args.checkpoint, map_location='cpu', weights_only=False)

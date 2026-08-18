@@ -4,24 +4,31 @@ import { WINDOW, RENDER, HUD, SCORING_HINT } from './config.js';
 // drives the on-screen game and a headless canvas in the corpus generator.
 // That is the whole point: one rasteriser, so train/serve skew is impossible.
 
-export function drawScene(ctx, truss) {
+// `style` lets the historic ports draw their own way -- the original used 1px
+// aalines and a stress scale of 3. Its defaults are v3's values exactly, so the
+// path the v3 model was trained on is untouched by its existence.
+export function drawScene(ctx, truss, style = {}) {
   ctx.fillStyle = RENDER.background;
   ctx.fillRect(0, 0, WINDOW.width, WINDOW.height);
-  drawTruss(ctx, truss);
+  drawTruss(ctx, truss, style);
 }
 
-export function drawTruss(ctx, truss) {
+export function drawTruss(ctx, truss, style = {}) {
+  const lineWidth = style.lineWidth ?? RENDER.lineWidth;
+  const stressScale = style.stressScale ?? RENDER.stressScale;
+  const plain = style.plainMembers ?? false;
+
   for (const i of truss.supports) {
     drawMarker(ctx, truss.nodes[i], RENDER.supportColor, true);
   }
   drawMarker(ctx, truss.loadedEnd, RENDER.loadedColor, false);
 
-  ctx.lineWidth = RENDER.lineWidth;
+  ctx.lineWidth = lineWidth;
   ctx.lineCap = 'round';
   truss.elements.forEach((e, i) => {
     const a = truss.nodesMoved[e[0]];
     const b = truss.nodesMoved[e[1]];
-    ctx.strokeStyle = stressColor(truss.sigmas[i]);
+    ctx.strokeStyle = plain ? 'rgb(255, 255, 255)' : stressColor(truss.sigmas[i], stressScale);
     ctx.beginPath();
     ctx.moveTo(a[0], a[1]);
     ctx.lineTo(b[0], b[1]);

@@ -28,6 +28,12 @@ export class Truss {
 
     this.sigmas = new Array(this.elements.length).fill(0);
     this.nodesMoved = this.nodes.map((p) => [...p]);
+
+    // 'undeformed' is correct and is what v2 and v3 use. The 2019 original
+    // took its direction cosines from the *deformed* positions, which mixes
+    // linear theory with a deformed configuration and visibly changes the
+    // member colours -- so the historic port asks for it deliberately.
+    this.stressFrom = cfg.stressFrom ?? 'undeformed';
   }
 
   // Linear static solve. K is assembled from the undeformed geometry and never
@@ -73,7 +79,8 @@ export class Truss {
       // some members fully red when they should have been fully blue.
       // (v1 also read dx and dy from different arrays here; both come from the
       // same one now.)
-      const { rows, length, c, s } = geometry(e, this.nodes);
+      const from = this.stressFrom === 'deformed' ? this.nodesMoved : this.nodes;
+      const { rows, length, c, s } = geometry(e, from);
       const d0 = c * u[rows[0]] + s * u[rows[1]];
       const d1 = c * u[rows[2]] + s * u[rows[3]];
       return (E * (d1 - d0)) / length;

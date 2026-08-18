@@ -6,19 +6,19 @@
 // Scores the complete screenshot-only pipeline, in a real browser, using the
 // same modules the game loads. Nothing here reaches into the generator: each
 // round renders a truss, and the AI is handed the canvas and nothing else.
-import { Truss, accuracy } from '../v2/src/truss.js';
-import { mulberry32 } from '../v2/src/random.js';
-import { PHYSICS } from '../v2/src/config.js';
-import { drawScene } from '../v2/src/renderer.js';
-import { TrussDetector, readTruss, findMembers } from '../v2/src/detect.js';
-import { TrussGNN } from '../v2/src/gnn.js';
-import { predictClick } from '../v2/src/ai.js';
+import { Truss, accuracy } from '../web/src/truss.js';
+import { mulberry32 } from '../web/src/random.js';
+import { PHYSICS } from '../web/src/config.js';
+import { drawScene } from '../web/src/renderer.js';
+import { TrussDetector, readTruss, findMembers } from '../web/src/detect.js';
+import { TrussGNN } from '../web/src/gnn.js';
+import { predictClick } from '../web/src/ai.js';
 
 const canvas = document.getElementById('scene');
 const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
-const detector = await TrussDetector.load('../v2/src/model/trussdetector.json');
-const gnn = await TrussGNN.load('../v2/src/model/trussgnn.json');
+const detector = await TrussDetector.load('../web/src/model/trussdetector.json');
+const gnn = await TrussGNN.load('../web/src/model/trussgnn.json');
 
 window.evaluateRange = function (start, count, seedBase, rounds) {
   const results = [];
