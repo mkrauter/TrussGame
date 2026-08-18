@@ -1,0 +1,14 @@
+{
+  "name": "trussgame-training",
+  "private": true,
+  "type": "module",
+  "description": "Headless corpus generator for the v3 model. Drives the real v2 renderer inside Chromium so training pixels match what players will see.",
+  "scripts": {
+    "corpus:train": "node generate_corpus.mjs --split train --count 20000 --seed-base 0",
+    "corpus:val": "node generate_corpus.mjs --split val --count 2000 --seed-base 1000000",
+    "corpus:smoke": "node generate_corpus.mjs --split smoke --count 32 --seed-base 900000"
+  },
+  "devDependencies": {
+    "playwright": "^1.56.0"
+  }
+}

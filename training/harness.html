@@ -1,0 +1,68 @@
+<!doctype html>
+<!--
+  Loaded by generate_corpus.mjs inside headless Chromium. Not part of the game.
+
+  The point of driving a real browser rather than node-canvas is that Chromium
+  rasterises with Skia, which is what will render the game for players. Cairo
+  (node-canvas) antialiases differently, and we have measured what that costs:
+  two pygame versions differing by 30 pixels on triangle edges moved a model
+  prediction by 17.9px.
+-->
+<html lang="en">
+<head><meta charset="utf-8"><title>corpus harness</title></head>
+<body>
+<canvas id="scene"></canvas>
+<canvas id="capture"></canvas>
+<script type="module">
+import { WINDOW, PHYSICS, MODEL } from '/v2/src/config.js';
+import { Truss } from '/v2/src/truss.js';
+import { drawScene } from '/v2/src/renderer.js';
+import { captureModelInput } from '/v2/src/capture.js';
+import { mulberry32 } from '/v2/src/random.js';
+
+const scene = document.getElementById('scene');
+scene.width = WINDOW.width;
+scene.height = WINDOW.height;
+const sceneCtx = scene.getContext('2d', { willReadFrequently: true });
+
+// A DOM canvas rather than createCaptureCanvas()'s OffscreenCanvas, purely so
+// toDataURL() is available for PNG encoding. drawImage and getImageData behave
+// identically on both, so the captured pixels are unaffected.
+const capture = document.getElementById('capture');
+capture.width = MODEL.inputSize;
+capture.height = MODEL.inputSize;
+
+// One sample: build a truss from its own seeded RNG, render it undeformed --
+// exactly the frame the game shows when it asks the model to predict -- capture
+// the model's view, then solve for the settled answer.
+window.generateBatch = (startIndex, count, seedBase) => {
+  const targets = [];
+  const images = [];
+
+  for (let i = 0; i < count; i++) {
+    const index = startIndex + i;
+    const truss = new Truss(mulberry32(seedBase + index));
+
+    drawScene(sceneCtx, truss);
+    captureModelInput(scene, capture);
+    images.push(capture.toDataURL('image/png'));
+
+    truss.calculate(PHYSICS.force);
+    const [a, b] = truss.supports;
+    targets.push({
+      index,
+      seed: seedBase + index,
+      start: truss.loadedStart,
+      end: truss.loadedEnd,
+      supportA: truss.nodes[a],
+      supportB: truss.nodes[b],
+    });
+  }
+
+  return { targets, images };
+};
+
+window.harnessReady = true;
+</script>
+</body>
+</html>
