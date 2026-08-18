@@ -24,10 +24,13 @@ export function captureModelInput(sourceCanvas, target) {
   // pixel-affecting choice like any other.
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = MODEL.smoothingQuality;
+  // Scale to whatever `target` actually is rather than to MODEL.inputSize, so
+  // the two cannot silently disagree and so the resolution can be varied for
+  // experiments without editing this file.
   ctx.drawImage(
     sourceCanvas,
     CROP.x, CROP.y, CROP.width, CROP.height,
-    0, 0, MODEL.inputSize, MODEL.inputSize
+    0, 0, target.width, target.height
   );
   return ctx;
 }

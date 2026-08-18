@@ -28,9 +28,15 @@ const sceneCtx = scene.getContext('2d', { willReadFrequently: true });
 // A DOM canvas rather than createCaptureCanvas()'s OffscreenCanvas, purely so
 // toDataURL() is available for PNG encoding. drawImage and getImageData behave
 // identically on both, so the captured pixels are unaffected.
+// ?size=N overrides MODEL.inputSize, for measuring how much line structure
+// survives the downscale at different input resolutions. Normal generation
+// leaves it unset and uses the configured value.
+const sizeOverride = Number(new URLSearchParams(location.search).get('size'));
+const captureSize = sizeOverride || MODEL.inputSize;
+
 const capture = document.getElementById('capture');
-capture.width = MODEL.inputSize;
-capture.height = MODEL.inputSize;
+capture.width = captureSize;
+capture.height = captureSize;
 
 // One sample: build a truss from its own seeded RNG, render it undeformed --
 // exactly the frame the game shows when it asks the model to predict -- capture

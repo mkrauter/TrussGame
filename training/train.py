@@ -76,6 +76,11 @@ def main():
     # and an unweighted loss lets it dominate a task it has nothing left to learn.
     p.add_argument('--weights', type=float, nargs=3, default=[1.0, 2.0, 1.0],
                    metavar=('START', 'DELTA', 'FINAL'))
+    # Dilation is the one receptive-field lever that costs no parameters, which
+    # is what makes it adjustable at all under a fixed budget. It has to move
+    # with the input resolution: the crop is fixed, so a larger input scales the
+    # support span up while the receptive field stays where it is.
+    p.add_argument('--dilations', type=int, nargs='+', default=[1, 1, 1, 2, 4])
     p.add_argument('--seed', type=int, default=0)
     p.add_argument('--workers', type=int, default=4)
     p.add_argument('--mirror', action='store_true', default=True)
@@ -83,6 +88,10 @@ def main():
     p.add_argument('--noise', type=float, default=0.0)
     p.add_argument('--smoke', action='store_true', help='overfit 8 samples; loss must reach ~0')
     p.add_argument('--cpu', action='store_true')
+    # Which corpus to train on. Points elsewhere for resolution experiments;
+    # the model is resolution-agnostic (soft-argmax, no flatten) and targets are
+    # normalised against the crop, so only the pixels change.
+    p.add_argument('--corpus', default=str(data.DEFAULT_ROOT))
     p.add_argument('--out', default=str(HERE / 'runs'))
     args = p.parse_args()
 
@@ -91,23 +100,31 @@ def main():
     device = torch.device('cpu' if args.cpu else 'cuda')
 
     seed_everything(args.seed)
-    model = TrussNet().to(device)
+    model = TrussNet(dilations=tuple(args.dilations)).to(device)
     n_params = count_parameters(model)
-    print(f'TrussNet: {n_params:,} parameters, receptive field {receptive_field()}px '
-          f'(support span is 190-233px)')
+    # The span was measured as 190-233px at 256 input; it scales with the input
+    # because the crop is fixed, while the receptive field does not. Printed
+    # together because whether one covers the other is the point of the design.
+    input_size = data.detect_input_size('val', Path(args.corpus))
+    span = (190 * input_size / 256, 233 * input_size / 256)
+    print(f'TrussNet: {n_params:,} parameters, receptive field '
+          f'{receptive_field(tuple(args.dilations))}px '
+          f'(support span is {span[0]:.0f}-{span[1]:.0f}px at {input_size}px input)')
     print(f'device: {torch.cuda.get_device_name(0) if device.type == "cuda" else "cpu"}\n')
 
+    corpus = Path(args.corpus)
     if args.smoke:
-        train_set = Subset(TrussDataset('val', mirror=False), list(range(8)))
+        train_set = Subset(TrussDataset('val', root=corpus, mirror=False), list(range(8)))
         val_set = train_set
-        val_targets = {k: v[:8] for k, v in data.load_targets('val').items()
+        val_targets = {k: v[:8] for k, v in data.load_targets('val', corpus).items()
                        if isinstance(v, np.ndarray)}
         args.epochs = max(args.epochs, 300)
         args.batch = 8
     else:
-        train_set = TrussDataset('train', mirror=args.mirror, noise=args.noise, seed=args.seed)
-        val_set = TrussDataset('val', mirror=False)
-        val_targets = data.load_targets('val')
+        train_set = TrussDataset('train', root=corpus, mirror=args.mirror,
+                                 noise=args.noise, seed=args.seed)
+        val_set = TrussDataset('val', root=corpus, mirror=False)
+        val_targets = data.load_targets('val', corpus)
 
     train_loader = DataLoader(train_set, batch_size=args.batch, shuffle=True,
                               num_workers=args.workers, drop_last=not args.smoke,

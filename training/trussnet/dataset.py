@@ -1,7 +1,15 @@
 """Torch dataset over the generated corpus.
 
 Images stay memory-mapped and are converted per sample; a 20k split is 3.9 GB
-decoded, so holding it outright would not fit alongside everything else.
+decoded at 256 and 8.8 GB at 384, so holding it outright would not fit
+alongside everything else.
+
+The memmap is deliberately not part of the pickled state. Windows spawns
+DataLoader workers rather than forking, so the dataset is pickled once per
+worker -- and np.memmap pickles *by value*, which handed each worker a private
+copy of the whole corpus instead of a shared view of the file. At 384 that
+overflowed the spawn pipe outright (OSError 22); at 256 it merely wasted
+several GB per worker. Each worker reopens the file itself instead.
 """
 from __future__ import annotations
 
@@ -15,9 +23,11 @@ from . import coords, data
 class TrussDataset(Dataset):
     def __init__(self, split, root=data.DEFAULT_ROOT, mirror=False, noise=0.0, seed=0):
         targets = data.load_targets(split, root)
-        self.images = data.load_images(split, root)
-        if len(self.images) != targets['n']:
-            raise ValueError(f'{split}: {len(self.images)} images vs {targets["n"]} targets')
+        self.split, self.root = split, root
+        self._images = data.load_images(split, root)
+        if len(self._images) != targets['n']:
+            raise ValueError(f'{split}: {len(self._images)} images vs {targets["n"]} targets')
+        self._n = targets['n']
 
         self.start = coords.position_to_model(targets['start']).astype(np.float32)
         self.delta = coords.delta_to_model(targets['end'] - targets['start']).astype(np.float32)
@@ -25,8 +35,19 @@ class TrussDataset(Dataset):
         self.noise = noise
         self._rng = np.random.default_rng(seed)
 
+    @property
+    def images(self):
+        """The memmap, reopened on first use in whichever process asks."""
+        if self._images is None:
+            self._images = data.load_images(self.split, self.root, verbose=False)
+        return self._images
+
+    def __getstate__(self):
+        # Send the worker everything except the corpus itself.
+        return {**self.__dict__, '_images': None}
+
     def __len__(self):
-        return len(self.images)
+        return self._n
 
     def __getitem__(self, i):
         frame = np.asarray(self.images[i])            # (H, W, 3) uint8

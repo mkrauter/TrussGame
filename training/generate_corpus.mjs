@@ -63,7 +63,8 @@ const browser = await chromium.launch({ headless: args.headed === undefined });
 const page = await browser.newPage({ deviceScaleFactor: 1 });
 
 page.on('pageerror', (e) => { throw e; });
-await page.goto(`http://127.0.0.1:${port}/training/harness.html`);
+const query = args.size ? `?size=${Number(args.size)}` : '';
+await page.goto(`http://127.0.0.1:${port}/training/harness.html${query}`);
 await page.waitForFunction('window.harnessReady === true');
 
 const targets = [];
