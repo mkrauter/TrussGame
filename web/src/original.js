@@ -15,7 +15,7 @@
 //
 // The corrected physics and the AI opponent live in v2 and v3.
 
-import { WINDOW, PHYSICS } from './config.js';
+import { WINDOW, PHYSICS, RENDER } from './config.js';
 import { Truss } from './truss.js';
 import { drawScene } from './renderer.js';
 
@@ -57,15 +57,48 @@ canvas.addEventListener('click', (event) => {
   }
 });
 
+// The original drew this in mid grey, which disappears against the members.
+// White, like the guess marker in v2 and v3.
 function drawCross(p) {
-  ctx.strokeStyle = 'rgb(128, 128, 128)';
-  ctx.lineWidth = 1;
+  ctx.strokeStyle = 'rgb(255, 255, 255)';
+  ctx.lineWidth = 2;
   ctx.beginPath();
   ctx.moveTo(p[0] - 20, p[1]);
   ctx.lineTo(p[0] + 20, p[1]);
   ctx.moveTo(p[0], p[1] - 20);
   ctx.lineTo(p[0], p[1] + 20);
   ctx.stroke();
+}
+
+// The readout sits in the top-right corner, where the truss can reach it. Its
+// two lines are right-aligned to a common edge -- the original blitted them at
+// x = 750 and x = 710, which lined up under pygame's font metrics and does not
+// under the browser's -- and the block is backed by the page colour so a member
+// passing behind it cannot make the number unreadable.
+const READOUT_RIGHT = 860;
+const LABEL_FONT = '24px "Segoe UI", system-ui, sans-serif';
+const VALUE_FONT = '72px "Segoe UI", system-ui, sans-serif';
+
+function drawAccuracy(score) {
+  const label = 'accuracy:';
+  const value = `${Math.floor(score)}%`;
+
+  ctx.font = LABEL_FONT;
+  const labelWidth = ctx.measureText(label).width;
+  ctx.font = VALUE_FONT;
+  const valueWidth = ctx.measureText(value).width;
+  const width = Math.max(labelWidth, valueWidth);
+
+  ctx.fillStyle = RENDER.background;
+  ctx.fillRect(READOUT_RIGHT - width - 14, 22, width + 28, 108);
+
+  ctx.fillStyle = 'rgb(255, 255, 255)';
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'top';
+  ctx.font = LABEL_FONT;
+  ctx.fillText(label, READOUT_RIGHT, 30);
+  ctx.font = VALUE_FONT;
+  ctx.fillText(value, READOUT_RIGHT, 56);
 }
 
 function frame() {
@@ -78,11 +111,11 @@ function frame() {
 
   ctx.fillStyle = 'rgb(255, 255, 255)';
   ctx.textBaseline = 'top';
-  ctx.textAlign = 'left';
+  ctx.textAlign = 'center';
 
   if (mouse === null) {
-    ctx.font = '24px "Segoe UI", system-ui, sans-serif';
-    ctx.fillText('Click where you think the blue node will move!', 200, 800);
+    ctx.font = LABEL_FONT;
+    ctx.fillText('Click where you think the blue node will move!', WINDOW.width / 2, 800);
   } else {
     drawCross(mouse);
 
@@ -94,10 +127,7 @@ function frame() {
     const missed = Math.hypot(mouse[0] - end[0], mouse[1] - end[1]);
     const score = Math.max(100 - (100 * missed) / travelled, 0);
 
-    ctx.font = '24px "Segoe UI", system-ui, sans-serif';
-    ctx.fillText('accuracy:', 750, 30);
-    ctx.font = '72px "Segoe UI", system-ui, sans-serif';
-    ctx.fillText(`${Math.floor(score)}%`, 710, 50);
+    drawAccuracy(score);
   }
 
   requestAnimationFrame(frame);
