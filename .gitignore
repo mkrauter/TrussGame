@@ -28,6 +28,9 @@ node_modules/
 # is a few hundred MB of PNG.
 training/corpus/
 
+# Checkpoints and logs. The model that ships gets published as a release asset.
+training/runs/
+
 # Colab training intermediates. These are exported per training run and are
 # never referenced by the game -- only the .tflite is.
 # Note the trailing slash on truss_game_AI_model/: it matches the SavedModel
