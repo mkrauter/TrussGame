@@ -1,0 +1,135 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Pixel pipeline evaluation harness</title>
+<canvas id="scene" width="900" height="900"></canvas>
+<script type="module">
+// Scores the complete screenshot-only pipeline, in a real browser, using the
+// same modules the game loads. Nothing here reaches into the generator: each
+// round renders a truss, and the AI is handed the canvas and nothing else.
+import { Truss, accuracy } from '../v2/src/truss.js';
+import { mulberry32 } from '../v2/src/random.js';
+import { PHYSICS } from '../v2/src/config.js';
+import { drawScene } from '../v2/src/renderer.js';
+import { TrussDetector, readTruss, findMembers } from '../v2/src/detect.js';
+import { TrussGNN } from '../v2/src/gnn.js';
+import { predictClick } from '../v2/src/ai.js';
+
+const canvas = document.getElementById('scene');
+const ctx = canvas.getContext('2d', { willReadFrequently: true });
+
+const detector = await TrussDetector.load('../v2/src/model/trussdetector.json');
+const gnn = await TrussGNN.load('../v2/src/model/trussgnn.json');
+
+window.evaluateRange = function (start, count, seedBase, rounds) {
+  const results = [];
+  for (let i = 0; i < count; i++) {
+    const seed = seedBase + start + i;
+    const truth = new Truss(mulberry32(seed));
+
+    // The undeformed frame -- exactly what the player is looking at when they
+    // commit to a guess, and the only thing the AI receives.
+    drawScene(ctx, truth);
+
+    const t0 = performance.now();
+    const seen = readTruss(detector, canvas);
+    const detectMs = performance.now() - t0;
+
+    let score = 0;
+    let click = null;
+    let ok = seen.loadedNode >= 0 && seen.supports.length === 2;
+    if (ok) {
+      try {
+        click = predictClick(gnn, seen, { sigma: 0, rounds });
+        ok = Number.isFinite(click[0]) && Number.isFinite(click[1]);
+      } catch (e) {
+        ok = false;
+      }
+    }
+
+    truth.calculate(PHYSICS.force);
+    if (ok) score = accuracy(truth.loadedStart, truth.loadedEnd, click);
+
+    // How far the detector put each true node, after nearest-pair matching.
+    const errors = truth.nodes.map((p) => {
+      let best = Infinity;
+      for (const q of seen.nodes) best = Math.min(best, Math.hypot(p[0] - q[0], p[1] - q[1]));
+      return best;
+    });
+
+    results.push({
+      seed,
+      score,
+      ok,
+      detectMs,
+      members: seen.elements.length,
+      trueMembers: truth.elements.length,
+      nodeError: errors.reduce((a, b) => a + b, 0) / errors.length,
+      worstNode: Math.max(...errors),
+    });
+  }
+  return results;
+};
+
+// Sweep member-detection parameters against the real detector's node error.
+// Renders and detects once per seed, then scores every configuration on the
+// same detections, so the CNN cost is paid once rather than per configuration.
+window.sweepMembers = function (start, count, seedBase, configs) {
+  const totals = configs.map(() => ({ perfect: 0, missed: 0, spurious: 0 }));
+  for (let i = 0; i < count; i++) {
+    const truth = new Truss(mulberry32(seedBase + start + i));
+    drawScene(ctx, truth);
+    const found = detector.findNodes(canvas);
+    const points = found.map((n) => n.position);
+    const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+    // Match detected nodes to true ones so the member sets are comparable.
+    const map = points.map((p) => {
+      let best = -1;
+      let bestD = Infinity;
+      truth.nodes.forEach((q, k) => {
+        const d = Math.hypot(p[0] - q[0], p[1] - q[1]);
+        if (d < bestD) { bestD = d; best = k; }
+      });
+      return best;
+    });
+    const want = new Set(truth.elements.map(([a, b]) => [a, b].sort((x, y) => x - y).join(',')));
+
+    configs.forEach((cfg, c) => {
+      const got = new Set(
+        findMembers(canvas, points, { ...cfg, pixels })
+          .map(([a, b]) => [map[a], map[b]].sort((x, y) => x - y).join(','))
+      );
+      let missed = 0;
+      let spurious = 0;
+      for (const e of want) if (!got.has(e)) missed++;
+      for (const e of got) if (!want.has(e)) spurious++;
+      totals[c].missed += missed;
+      totals[c].spurious += spurious;
+      if (missed === 0 && spurious === 0) totals[c].perfect++;
+    });
+  }
+  return totals;
+};
+
+// Dump what the browser computes for one truss, so verify_detector.py can hold
+// it against PyTorch. Covers the whole chain the game depends on: the capture
+// crop and downscale, the convolution runtime, and the peak decode.
+window.dumpDetection = function (seed) {
+  const truss = new Truss(mulberry32(seed));
+  drawScene(ctx, truss);
+  const input = detector._input(canvas);
+  const nodes = detector.findNodes(canvas);
+  return {
+    seed,
+    inputSize: detector.inputSize,
+    // Subsampled: the full tensor is megabytes of JSON and every 977th element
+    // is plenty to catch a systematic difference in the capture path.
+    inputProbe: Array.from({ length: 256 }, (_, i) => input[(i * 977) % input.length]),
+    inputSum: input.reduce((a, b) => a + b, 0),
+    nodes: nodes.map((n) => ({ position: n.position, role: n.role, score: n.score })),
+    members: findMembers(canvas, nodes.map((n) => n.position)),
+  };
+};
+
+window.harnessReady = true;
+</script>
