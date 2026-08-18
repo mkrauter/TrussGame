@@ -15,7 +15,7 @@
 // members, which costs it 1.8 points against the faithful hairline rendering
 // (61.6%). Drawing all three versions alike was the deliberate trade.
 
-import { WINDOW, PHYSICS, CROP, HUD } from './config.js';
+import { WINDOW, PHYSICS, CROP, HUD, RENDER } from './config.js';
 import { Truss, accuracy } from './truss.js';
 import { drawScene, drawCross } from './renderer.js';
 
@@ -132,43 +132,53 @@ canvas.addEventListener('click', (event) => {
   nextTruss();
 });
 
+// Two rows above y = 80, where the truss begins. A third row put the running
+// averages down among the members -- see the same fix in versus.js.
+const ROW_LABEL = 30;
+const ROW_VALUE = 68;
+const BAND = 80;
+
 function drawHud() {
   ctx.textBaseline = 'alphabetic';
   ctx.textAlign = 'center';
+
+  // Repainted before the text so the truss passes underneath it, not through it.
+  ctx.fillStyle = RENDER.background;
+  ctx.fillRect(0, 0, WINDOW.width, BAND);
+
   ctx.font = HUD.labelFont;
   ctx.fillStyle = HUD.dimColor;
-  ctx.fillText('You', 150, HUD.topBaseline);
-  ctx.fillText('AI', WINDOW.width - 150, HUD.topBaseline);
+  const left = rounds > 0 ? `You  ·  ${averageUser.toFixed(1)}% avg` : 'You';
+  const right = rounds > 0 ? `${averageAI.toFixed(1)}% avg  ·  AI` : 'AI';
+  ctx.fillText(left, 150, ROW_LABEL);
+  ctx.fillText(right, WINDOW.width - 150, ROW_LABEL);
 
-  const big = (left, right) => {
+  const big = (l, r) => {
     ctx.font = HUD.scoreFont;
     ctx.fillStyle = HUD.color;
-    ctx.fillText(left, 150, HUD.topBaseline + 52);
-    ctx.fillText(right, WINDOW.width - 150, HUD.topBaseline + 52);
+    ctx.fillText(l, 150, ROW_VALUE);
+    ctx.fillText(r, WINDOW.width - 150, ROW_VALUE);
   };
 
+  ctx.font = HUD.labelFont;
+  ctx.fillStyle = HUD.dimColor;
   if (guess !== null && shown) {
-    ctx.fillText('Accuracy', WINDOW.width / 2, HUD.topBaseline);
+    ctx.fillText('Accuracy', WINDOW.width / 2, ROW_LABEL);
     big(`${shown.user.toFixed(0)}%`, `${shown.ai.toFixed(0)}%`);
     const centre = WINDOW.width / 2;
-    const top = HUD.topBaseline + 40;
+    const top = 52;
     const length = Math.min(Math.abs(shown.user - shown.ai) * 2.2, 200);
     ctx.fillStyle = shown.user >= shown.ai ? '#5cc46a' : '#d86a6a';
     ctx.fillRect(shown.user >= shown.ai ? centre - length : centre, top, length, 7);
     ctx.fillStyle = HUD.dimColor;
     ctx.fillRect(centre - 1, top - 7, 2, 21);
   } else {
-    ctx.fillText('Score', WINDOW.width / 2, HUD.topBaseline);
+    ctx.fillText('Score', WINDOW.width / 2, ROW_LABEL);
     big(`${scoreUser}`, `${scoreAI}`);
-    ctx.font = HUD.labelFont;
-    ctx.fillStyle = HUD.dimColor;
-    if (rounds > 0) {
-      ctx.fillText(`${averageUser.toFixed(1)}% avg`, 150, HUD.topBaseline + 80);
-      ctx.fillText(`${averageAI.toFixed(1)}% avg`, WINDOW.width - 150, HUD.topBaseline + 80);
-    }
     if (draws > 0) {
-      ctx.fillText(`${draws} draw${draws === 1 ? '' : 's'}`,
-                   WINDOW.width / 2, HUD.topBaseline + 52);
+      ctx.font = HUD.labelFont;
+      ctx.fillStyle = HUD.dimColor;
+      ctx.fillText(`${draws} draw${draws === 1 ? '' : 's'}`, WINDOW.width / 2, ROW_VALUE);
     }
   }
 
