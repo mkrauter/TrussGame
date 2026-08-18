@@ -20,8 +20,13 @@ dist/
 # JetBrains
 .idea/
 
-# Node (v2)
+# Node (v2, training)
 node_modules/
+
+# Generated training corpus. Reproducible from generate_corpus.mjs at a fixed
+# seed, and published as a release asset rather than committed -- 20k samples
+# is a few hundred MB of PNG.
+training/corpus/
 
 # Colab training intermediates. These are exported per training run and are
 # never referenced by the game -- only the .tflite is.

@@ -29,6 +29,20 @@ export const PHYSICS = {
   force: 1e5,
 };
 
+// What the network actually receives. The CROP region is downscaled to this
+// before it reaches the model.
+//
+// Both the game at inference time and the corpus generator go through
+// capture.js, so the resampling is byte-identical. Resizing with PyTorch at
+// training time and with drawImage at serving time would reintroduce
+// train/serve skew by the back door -- the same class of bug as v1's, just
+// moved from the rasteriser to the resampler.
+export const MODEL = {
+  inputSize: 256,
+  // Named explicitly because the default varies between browsers.
+  smoothingQuality: 'high',
+};
+
 // The load ramp is cosmetic: it animates from 0 up to `force`, settling by
 // SETTLE_TIME. The prediction target is always the settled state, so the
 // corpus generator ignores this entirely and does one static solve.
