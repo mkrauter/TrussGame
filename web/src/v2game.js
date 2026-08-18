@@ -5,15 +5,15 @@
 // replayed by src/tflite.js, checked against LiteRT to 0.0002px.
 //
 // It is not good, and that is the point of keeping it. Measured through this
-// port over 150 trusses it scores 61.6%, against 59.5% for "drop it straight
-// down by the average distance" -- it moves the node 142px where the truth is
-// 152px, which is the average, and its predicted displacement has a negative
+// port over 150 trusses it scores 59.8%, level with the 59.5% you get from
+// "drop it straight down by the average distance" -- it moves the node 137px
+// where the truth is 152px, and its predicted displacement has a negative
 // R-squared against simply guessing the mean. It finds the node and drops it.
 // v3 scores 96.4% on the same task.
 //
-// It was trained on pygame's renderer and this page draws with Canvas, whose
-// antialiasing differs. Measured on both, that is worth about three points in
-// its favour here, so the port is if anything flattering it.
+// It was trained on pygame's 1px aalines and this page draws v3's 2.5px
+// members, which costs it 1.8 points against the faithful hairline rendering
+// (61.6%). Drawing all three versions alike was the deliberate trade.
 
 import { WINDOW, PHYSICS, CROP, HUD } from './config.js';
 import { Truss, accuracy } from './truss.js';
@@ -21,7 +21,10 @@ import { drawScene, drawCross } from './renderer.js';
 
 // truss_game_AI.py sampled with a 100px minimum spacing and offset (100, 150).
 const TRUSS_OPTIONS = { offset: [100, 150], minDistance: 100 };
-const STYLE = { lineWidth: 1, stressScale: 5 };
+// Members are drawn at v3's thickness. truss_game_AI.py used pygame's 1px
+// aaline, but hairlines look wrong beside v3 and the difference costs this
+// model almost nothing -- measured below.
+const STYLE = {};
 const SETTLE = 500;
 const ramp = (t) => 1 - Math.exp(-0.015 * t) * Math.cos(0.1 * t);
 
