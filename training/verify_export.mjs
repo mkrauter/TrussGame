@@ -1,4 +1,4 @@
-// Check that v2/src/gnn.js computes what trussnet/gnn.py computes.
+// Check that web/src/gnn.js computes what trussnet/gnn.py computes.
 //
 //   python verify_export.py && node verify_export.mjs
 //
@@ -9,15 +9,15 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { Truss } from '../v2/src/truss.js';
-import { mulberry32 } from '../v2/src/random.js';
-import { TrussGNN } from '../v2/src/gnn.js';
-import { buildGraph, perceive } from '../v2/src/ai.js';
+import { Truss } from '../web/src/truss.js';
+import { mulberry32 } from '../web/src/random.js';
+import { TrussGNN } from '../web/src/gnn.js';
+import { buildGraph, perceive } from '../web/src/ai.js';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const expected = JSON.parse(fs.readFileSync(path.join(HERE, 'expected.json'), 'utf-8'));
 const payload = JSON.parse(
-  fs.readFileSync(path.join(HERE, '..', 'v2', 'src', 'model', 'trussgnn.json'), 'utf-8')
+  fs.readFileSync(path.join(HERE, '..', 'web', 'src', 'model', 'trussgnn.json'), 'utf-8')
 );
 const model = new TrussGNN(payload);
 

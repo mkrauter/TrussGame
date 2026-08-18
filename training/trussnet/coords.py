@@ -11,7 +11,7 @@ which cannot place a peak outside its own grid.
 """
 from __future__ import annotations
 
-# Must match CROP in v2/src/config.js.
+# Must match CROP in web/src/config.js.
 CROP_ORIGIN = 68.0
 CROP_SIZE = 768.0
 

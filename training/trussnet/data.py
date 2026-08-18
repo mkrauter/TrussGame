@@ -12,7 +12,7 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 
-# What v2/src/config.js currently ships as MODEL.inputSize. The corpus's own
+# What web/src/config.js currently ships as MODEL.inputSize. The corpus's own
 # resolution is read off its PNGs rather than trusted to match, so an
 # experimental corpus generated with --size loads without editing this file.
 DECLARED_INPUT_SIZE = 256

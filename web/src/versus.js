@@ -36,8 +36,8 @@ view.height = WINDOW.height;
 const viewCtx = view.getContext('2d', { willReadFrequently: true });
 
 const [detector, gnn] = await Promise.all([
-  TrussDetector.load('./src/model/trussdetector.json'),
-  TrussGNN.load('./src/model/trussgnn.json'),
+  TrussDetector.load(new URL('./model/trussdetector.json', import.meta.url)),
+  TrussGNN.load(new URL('./model/trussgnn.json', import.meta.url)),
 ]);
 
 // Fewer message-passing rounds is a less-converged solver, so difficulty is a

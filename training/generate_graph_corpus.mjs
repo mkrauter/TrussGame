@@ -21,9 +21,9 @@ import fsp from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { Truss } from '../v2/src/truss.js';
-import { mulberry32 } from '../v2/src/random.js';
-import { PHYSICS } from '../v2/src/config.js';
+import { Truss } from '../web/src/truss.js';
+import { mulberry32 } from '../web/src/random.js';
+import { PHYSICS } from '../web/src/config.js';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 

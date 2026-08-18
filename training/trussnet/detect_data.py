@@ -21,7 +21,7 @@ from torch.utils.data import Dataset
 from . import data as pixel_data
 from . import graph_data
 
-# Must match CROP in v2/src/config.js.
+# Must match CROP in web/src/config.js.
 CROP_ORIGIN = 68.0
 CROP_SIZE = 768.0
 

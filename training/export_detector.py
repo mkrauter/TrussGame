@@ -89,7 +89,7 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument('checkpoint')
     p.add_argument('--out', default=str(Path(__file__).resolve().parent.parent
-                                        / 'v2' / 'src' / 'model' / 'trussdetector.json'))
+                                        / 'web' / 'src' / 'model' / 'trussdetector.json'))
     args = p.parse_args()
 
     ck = torch.load(args.checkpoint, map_location='cpu', weights_only=False)
