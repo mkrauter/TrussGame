@@ -20,6 +20,10 @@ they are held by their members, and so on out to the ground. The joint slides
 along whatever path the whole structure permits, which is often sideways, and
 occasionally *upwards*.
 
+![A truss drawn twice: pale before loading, dark after. The loaded joint's
+actual path runs down and to the left, while a dashed line marks the straight
+drop most people expect.](images/not-straight-down.png)
+
 You cannot calculate this in your head. But you can develop a feel for it. Play
 a few rounds and you start reading the shape — this one will swing left, this
 one will barely move — without knowing why you know. Engineers call it intuition.
@@ -100,6 +104,9 @@ about theories that fit the data for the wrong reasons:
 > *"With four parameters I can fit an elephant, and with five I can make him
 > wiggle his trunk."*
 
+![An elephant drawn as a single closed curve, with two faint copies showing
+its trunk swung up and down.](images/elephant.png)
+
 My model had 307,618 of them. It had fitted a rather good elephant.
 
 ## Trying harder does not help
@@ -139,6 +146,9 @@ joint*. Pull one corner of a fishing net and the whole net rearranges itself.
 There is no such thing as a local answer: the joint you care about cannot settle
 until its neighbours settle, and they cannot settle until their neighbours do,
 all the way to the ground and back.
+
+![Two matrices side by side. K has visible gaps in it; its inverse is
+completely filled in.](images/stiffness.png)
 
 Image networks are built on the opposite assumption. They work brilliantly for
 pictures precisely because pictures *are* mostly local — a cat's ear is a cat's

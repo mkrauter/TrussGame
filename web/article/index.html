@@ -63,6 +63,39 @@
   /* ~65 characters per line, the measure typographers keep arriving at. */
   article { max-width: 34em; margin: 0 auto; }
 
+  /* Figures break out past the text column: wide enough to carry detail, still
+     centred on the same axis as the prose. Transparent PNGs, so they sit on
+     whichever background the reader's theme provides. */
+  .fig {
+    width: min(44em, 94vw);
+    margin: 2.8em calc(50% - min(22em, 47vw));
+  }
+  .fig img { display: block; width: 100%; height: auto; }
+
+  /* Full bleed. The article is a centred column, so the hero escapes it simply
+     by living outside <article> -- no negative-margin tricks needed. The image
+     is cropped to a letterbox rather than shown whole, so its height stays
+     predictable whatever you drop in, and it is capped in vh so it cannot eat
+     a laptop screen. */
+  .hero { margin: 0; }
+  .hero img {
+    display: block;
+    width: 100%;
+    height: min(46vh, 420px);
+    object-fit: cover;
+    /* Slightly above centre: the interesting part of most images is not the
+       geometric middle. */
+    object-position: center 42%;
+  }
+  .hero figcaption {
+    max-width: 34em;
+    margin: 10px auto 0;
+    font-family: var(--sans);
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+  .hero + .masthead { padding-top: 22px; }
+
   .masthead {
     max-width: 34em;
     margin: 0 auto;
@@ -213,6 +246,9 @@ truss cannot go wherever it likes. It is held by the members attached to it, and
 they are held by their members, and so on out to the ground. The joint slides
 along whatever path the whole structure permits, which is often sideways, and
 occasionally <em>upwards</em>.</p>
+<figure class="fig"><picture><source srcset="../../images/not-straight-down-dark.png" media="(prefers-color-scheme: dark)"><img alt="A truss drawn twice: pale before loading, dark after. The loaded joint's
+actual path runs down and to the left, while a dashed line marks the straight
+drop most people expect." src="../../images/not-straight-down.png" /></picture></figure>
 <p>You cannot calculate this in your head. But you can develop a feel for it. Play
 a few rounds and you start reading the shape — this one will swing left, this
 one will barely move — without knowing why you know. Engineers call it intuition.
@@ -273,6 +309,8 @@ about theories that fit the data for the wrong reasons:</p>
 <p><em>&ldquo;With four parameters I can fit an elephant, and with five I can make him
 wiggle his trunk.&rdquo;</em></p>
 </blockquote>
+<figure class="fig"><picture><source srcset="../../images/elephant-dark.png" media="(prefers-color-scheme: dark)"><img alt="An elephant drawn as a single closed curve, with two faint copies showing
+its trunk swung up and down." src="../../images/elephant.png" /></picture></figure>
 <p>My model had 307,618 of them. It had fitted a rather good elephant.</p>
 <h2>Trying harder does not help</h2>
 <p>My first instinct was that the network was simply too crude, and it was — built
@@ -301,6 +339,8 @@ joint</em>. Pull one corner of a fishing net and the whole net rearranges itself
 There is no such thing as a local answer: the joint you care about cannot settle
 until its neighbours settle, and they cannot settle until their neighbours do,
 all the way to the ground and back.</p>
+<figure class="fig"><picture><source srcset="../../images/stiffness-dark.png" media="(prefers-color-scheme: dark)"><img alt="Two matrices side by side. K has visible gaps in it; its inverse is
+completely filled in." src="../../images/stiffness.png" /></picture></figure>
 <p>Image networks are built on the opposite assumption. They work brilliantly for
 pictures precisely because pictures <em>are</em> mostly local — a cat&rsquo;s ear is a cat&rsquo;s
 ear regardless of what is happening in the far corner of the photo. Stacking

@@ -84,6 +84,39 @@ TEMPLATE = """<!doctype html>
   /* ~65 characters per line, the measure typographers keep arriving at. */
   article {{ max-width: 34em; margin: 0 auto; }}
 
+  /* Figures break out past the text column: wide enough to carry detail, still
+     centred on the same axis as the prose. Transparent PNGs, so they sit on
+     whichever background the reader's theme provides. */
+  .fig {{
+    width: min(44em, 94vw);
+    margin: 2.8em calc(50% - min(22em, 47vw));
+  }}
+  .fig img {{ display: block; width: 100%; height: auto; }}
+
+  /* Full bleed. The article is a centred column, so the hero escapes it simply
+     by living outside <article> -- no negative-margin tricks needed. The image
+     is cropped to a letterbox rather than shown whole, so its height stays
+     predictable whatever you drop in, and it is capped in vh so it cannot eat
+     a laptop screen. */
+  .hero {{ margin: 0; }}
+  .hero img {{
+    display: block;
+    width: 100%;
+    height: min(46vh, 420px);
+    object-fit: cover;
+    /* Slightly above centre: the interesting part of most images is not the
+       geometric middle. */
+    object-position: center 42%;
+  }}
+  .hero figcaption {{
+    max-width: 34em;
+    margin: 10px auto 0;
+    font-family: var(--sans);
+    font-size: 0.8rem;
+    color: var(--muted);
+  }}
+  .hero + .masthead {{ padding-top: 22px; }}
+
   .masthead {{
     max-width: 34em;
     margin: 0 auto;
@@ -217,7 +250,7 @@ TEMPLATE = """<!doctype html>
 </style>
 </head>
 <body>
-
+{hero}
 <div class="masthead"><a href="../../">Truss game</a></div>
 
 <article>
@@ -238,8 +271,49 @@ TEMPLATE = """<!doctype html>
 """
 
 
+def read_front_matter(text):
+    """Strip an optional `key: value` block fenced by --- at the very top.
+
+    Deliberately tiny -- no YAML dependency, no nesting. It exists so article.md
+    can declare presentation bits, like a hero image, without anyone ever
+    hand-editing the generated HTML.
+    """
+    lines = text.splitlines(keepends=True)
+    if not lines or lines[0].strip() != '---':
+        return {}, text
+
+    meta = {}
+    for i, line in enumerate(lines[1:], start=1):
+        if line.strip() == '---':
+            return meta, ''.join(lines[i + 1:]).lstrip()
+        if ':' in line:
+            key, _, value = line.partition(':')
+            meta[key.strip()] = value.strip().strip('"\'')
+    return {}, text          # unterminated block: treat it as ordinary text
+
+
+def hero_markup(meta):
+    """Full-bleed image above the title, if article.md asked for one."""
+    src = meta.get("hero")
+    if not src:
+        return ""
+    alt = meta.get('heroAlt', '')
+    caption = meta.get('heroCaption', '')
+    # Paths in the markdown are repo-relative; the page sits two levels down.
+    if not src.startswith(('http', '/')):
+        src = '../../' + src
+    caption_html = f'  <figcaption>{caption}</figcaption>' if caption else ''
+    return f'''
+<figure class="hero">
+  <img src="{src}" alt="{alt}">
+{caption_html}
+</figure>
+'''
+
+
 def main():
-    text = SOURCE.read_text(encoding='utf-8')
+    raw = SOURCE.read_text(encoding='utf-8')
+    meta, text = read_front_matter(raw)
 
     title = re.search(r'^#\s+(.+)$', text, re.M).group(1).strip()
 
@@ -252,9 +326,29 @@ def main():
     body = body.replace('<table>', '<div class="table-wrap"><table>').replace(
         '</table>', '</table></div>')
 
+    # Images are written repo-relative in the markdown so the source stays
+    # readable; the page lives two levels down, so fix them on the way out.
+    body = body.replace('src="images/', 'src="../../images/')
+
+    # A paragraph holding nothing but an image is a figure, not a paragraph.
+    # Where a -dark variant exists beside the file, offer it to dark readers:
+    # a single figure tuned for both themes is muddy in at least one of them.
+    def as_figure(match):
+        tag = match.group(1)
+        src = re.search(r'src="([^"]+)"', tag).group(1)
+        dark = src.replace('.png', '-dark.png')
+        picture = tag
+        if (ROOT / dark.replace('../../', '')).exists():
+            picture = (f'<picture><source srcset="{dark}" '
+                       f'media="(prefers-color-scheme: dark)">{tag}</picture>')
+        return '<figure class="fig">' + picture + '</figure>'
+
+    body = re.sub(r'<p>(<img [^>]*/?>)</p>', as_figure, body)
+
     words = len(re.findall(r'\w+', body_md))
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(TEMPLATE.format(
+        hero=hero_markup(meta),
         title=title,
         description=standfirst[:180],
         standfirst=standfirst,
