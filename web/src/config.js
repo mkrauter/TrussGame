@@ -55,7 +55,7 @@ export const RENDER = {
   background: '#404040', // pygame's grey25
   supportColor: 'rgb(64, 128, 64)',
   loadedColor: 'rgb(100, 100, 200)',
-  markerSize: [10, 20],
+  markerSize: [15, 30],
   // v1 used aaline, which is 1px only. CLAUDE.md wants 2-3px so the lines
   // survive the 768->256 bilinear downsample against grey25.
   lineWidth: 2.5,

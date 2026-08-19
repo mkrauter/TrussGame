@@ -28,8 +28,14 @@ const BACKGROUND = (() => {
 // Member sampling, tuned by training/sweep_members.mjs against the *real*
 // detector's node error rather than against ground-truth positions. That
 // distinction cost a run: parameters tuned on exact nodes recovered the member
-// list on 97% of frames in Python and on 30% in the actual pipeline.
-const TRIM = 0.22;
+// list on 97% of frames in Python and on 30% in the actual pipeline. Current
+// settings recover it exactly on 138 of 150 frames.
+const TRIM = 0.18;
+// Markers are a fixed size in pixels, not a fraction of a member, so the ends
+// have to be skipped in pixels too. A fractional trim alone sampled short
+// members inside their own marker: when the markers grew to 30px it put a
+// spurious edge in every single frame.
+const TRIM_PX = 38;
 const SAMPLES = 24;
 const INK_THRESHOLD = 40;
 // halfWidth 1 rather than 2 because the 384px detector localises to ~1px; the
@@ -212,9 +218,13 @@ export function findMembers(sourceCanvas, points, options = {}) {
       const nx = -dy / length;
       const ny = dx / length;
 
+      // Clear the markers at both ends before sampling anything.
+      const trim = Math.max(TRIM, TRIM_PX / length);
+      if (trim >= 0.45) continue;        // too short to have a clear middle
+
       let drawn = 0;
       for (let s = 0; s < SAMPLES; s++) {
-        const t = TRIM + ((1 - 2 * TRIM) * s) / (SAMPLES - 1);
+        const t = trim + ((1 - 2 * trim) * s) / (SAMPLES - 1);
         const px = points[i][0] + dx * t;
         const py = points[i][1] + dy * t;
         let best = 0;
