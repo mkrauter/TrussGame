@@ -5,15 +5,15 @@
 // replayed by src/tflite.js, checked against LiteRT to 0.0002px.
 //
 // It is not good, and that is the point of keeping it. Measured through this
-// port over 150 trusses it scores 59.8%, level with the 59.5% you get from
-// "drop it straight down by the average distance" -- it moves the node 137px
-// where the truth is 152px, and its predicted displacement has a negative
+// port over 600 trusses it scores 60.5%, level with the 59.5% you get from
+// "drop it straight down by the average distance" -- it moves the node 135px
+// where the truth is 155px, and its predicted displacement has a negative
 // R-squared against simply guessing the mean. It finds the node and drops it.
-// v3 scores 96.4% on the same task.
+// v3 scores 96.3% on the same task.
 //
-// It was trained on pygame's 1px aalines and this page draws v3's 2.5px
-// members, which costs it 1.8 points against the faithful hairline rendering
-// (61.6%). Drawing all three versions alike was the deliberate trade.
+// It was trained on pygame's hairlines and this page draws v3's thicker
+// members. Measured either way the difference is a point or so, which 150
+// trusses cannot resolve -- hence the 600 above.
 
 import { WINDOW, PHYSICS, CROP, HUD, RENDER } from './config.js';
 import { Truss, accuracy } from './truss.js';
