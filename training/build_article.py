@@ -1,4 +1,4 @@
-"""Render article-v3-draft.md into a typeset page under web/article/.
+"""Render article.md into a typeset page under web/article/.
 
     python training/build_article.py
 
@@ -16,7 +16,7 @@ from pathlib import Path
 import markdown
 
 ROOT = Path(__file__).resolve().parent.parent
-SOURCE = ROOT / 'article-v3-draft.md'
+SOURCE = ROOT / 'article.md'
 OUT = ROOT / 'web' / 'article' / 'index.html'
 
 TEMPLATE = """<!doctype html>
