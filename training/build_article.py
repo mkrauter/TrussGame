@@ -98,15 +98,21 @@ TEMPLATE = """<!doctype html>
      is cropped to a letterbox rather than shown whole, so its height stays
      predictable whatever you drop in, and it is capped in vh so it cannot eat
      a laptop screen. */
-  .hero {{ margin: 0; }}
+  /* Escapes the body's side padding so it is genuinely full bleed; inset by
+     24px it read as a large picture rather than as the top of the page. */
+  .hero {{ margin: 0 -24px; }}
   .hero img {{
     display: block;
     width: 100%;
-    height: min(46vh, 420px);
+    /* Natural height, capped. A fixed height with object-fit:cover looked fine
+       on a laptop and cropped a 3:1 image down to its middle ninth on a phone,
+       which threw away both characters and kept the monitor. Letting the height
+       follow the aspect ratio keeps the whole picture at every width; the cap
+       only bites on very wide windows. */
+    height: auto;
+    max-height: min(52vh, 460px);
     object-fit: cover;
-    /* Slightly above centre: the interesting part of most images is not the
-       geometric middle. */
-    object-position: center 42%;
+    object-position: center 45%;
   }}
   .hero figcaption {{
     max-width: 34em;

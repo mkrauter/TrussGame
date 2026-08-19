@@ -1,3 +1,8 @@
+---
+hero: images/hero.jpg
+heroAlt: A man and a small robot sit at the same desk, both pointing at different spots on a screen showing a truss
+---
+
 # Can a machine learn engineering intuition?
 
 *I built a small game about how structures bend, then spent a few weeks
