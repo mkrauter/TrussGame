@@ -22,6 +22,11 @@ Read more about the idea in
 
 All three are playable in the browser, no download:
 
+**[Train v3 yourself](https://colab.research.google.com/github/mkrauter/TrussGame/blob/master/truss_game_v3_training.ipynb)**
+— a notebook that builds the corpus, trains the model to 96% in about six
+minutes on a free GPU, and explains why the obvious architecture cannot get
+there.
+
 **[Play all three](https://mkrauter.github.io/TrussGame/)** — or go straight to
 [v3](https://mkrauter.github.io/TrussGame/web/v3/),
 [v2](https://mkrauter.github.io/TrussGame/web/v2/), or
@@ -41,8 +46,9 @@ games can be played without installing anything; it is a port, not the article.
 | `truss_game_original.py` | **original** — the human-only game, frozen as a historic reference |
 | `truss_game_AI.py` | **v2** — human against the 2023 model |
 | `truss_game_AI_model.tflite` | the v2 model |
-| `truss_game_AI_training.ipynb` | the v2 training notebook — [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/mkrauter/TrussGame/blob/master/truss_game_AI_training.ipynb) |
+| `truss_game_AI_training.ipynb` | the v2 training notebook — historic, and its figures are training-set numbers |
 | `training/` | **v3** — corpus generation, models, training and the verification harnesses |
+| `truss_game_v3_training.ipynb` | **v3 explained and trained from scratch**, ~10 minutes — [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/mkrauter/TrussGame/blob/master/truss_game_v3_training.ipynb) |
 | `web/` | browser ports of all three, Canvas 2D, no dependencies |
 
 ## Running from source

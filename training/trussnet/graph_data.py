@@ -45,6 +45,31 @@ def load_raw(split, root=DEFAULT_ROOT):
     return payload['meta'], payload['samples']
 
 
+def load_targets(split, root=DEFAULT_ROOT):
+    """The columns `trussnet.metrics` needs, read from the structure corpus.
+
+    Same keys as `trussnet.data.load_targets`, which reads them from the pixel
+    corpus, so the baselines can be scored without generating any images.
+    """
+    _, samples = load_raw(split, root)
+    nodes = np.array([s['nodes'] for s in samples], dtype=np.float64)
+    displacement = np.array([s['displacement'] for s in samples], dtype=np.float64)
+    loaded = np.array([s['loadedNode'] for s in samples], dtype=np.int64)
+    supports = np.array([s['supports'] for s in samples], dtype=np.int64)
+    rows = np.arange(len(samples))
+
+    start = nodes[rows, loaded]
+    return {
+        'split': split,
+        'n': len(samples),
+        'seed': np.array([s['seed'] for s in samples], dtype=np.int64),
+        'start': start,
+        'end': start + displacement[rows, loaded],
+        'support_a': nodes[rows, supports[:, 0]],
+        'support_b': nodes[rows, supports[:, 1]],
+    }
+
+
 class TrussGraphs(Dataset):
     """Trusses as graphs, with perception modelled as coordinate jitter.
 
