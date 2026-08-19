@@ -324,6 +324,9 @@ work by combining small local patches, that field is limited, and mine was about
 half the width of a typical truss. <strong>No part of the network had ever seen both
 supports at the same time.</strong> I was asking it about a structure it could not look
 at in one go.</p>
+<figure class="fig"><picture><source srcset="../../images/receptive-field-dark.png" media="(prefers-color-scheme: dark)"><img alt="A truss with a shaded square showing how much of the picture one part of
+the network can see. The square is far narrower than the distance between
+the two supports." src="../../images/receptive-field.png" /></picture></figure>
 <p>That is a textbook problem with a textbook fix. I widened the field until it
 comfortably covered the whole truss, at no extra cost in model size, and
 retrained, confident this was the moment.</p>
@@ -362,6 +365,9 @@ members exactly as force does.</p>
 <p>Read that description again and it is not really an algorithm. It is a
 conversation. Each joint talks to its neighbours, over and over, until they all
 agree.</p>
+<figure class="fig"><picture><source srcset="../../images/message-passing-dark.png" media="(prefers-color-scheme: dark)"><img alt="The same truss three times. Blue spreads outward from the loaded joint:
+five joints reached after one round, seven after two, nine after
+three." src="../../images/message-passing.png" /></picture></figure>
 <p>And that turns out to describe a completely different family of neural network —
 one that operates on a <em>network of connected things</em> rather than on a grid of
 pixels. Joints become nodes. Members become the channels they talk along. One
@@ -425,36 +431,9 @@ flawless solver with the same eyes would score about 98%.</p>
 <p>Because the machine works by repeating the same conversation round after round,
 you can simply ask it to stop early. That does not damage it or add random error
 — it gives you a version that has not finished thinking.</p>
-<div class="table-wrap"><table>
-<thead>
-<tr>
-<th>rounds of thinking</th>
-<th>score</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>1</td>
-<td>25%</td>
-</tr>
-<tr>
-<td>4</td>
-<td>47%</td>
-</tr>
-<tr>
-<td>6</td>
-<td>68%</td>
-</tr>
-<tr>
-<td>8</td>
-<td>86%</td>
-</tr>
-<tr>
-<td>10</td>
-<td>96%</td>
-</tr>
-</tbody>
-</table></div>
+<figure class="fig"><picture><source srcset="../../images/difficulty-dark.png" media="(prefers-color-scheme: dark)"><img alt="A curve rising from 25% at one round to 96% at ten, crossing the
+straight-down baseline at about five rounds and the human band at
+six." src="../../images/difficulty.png" /></picture></figure>
 <p>One dial, from novice to expert, and it is not a handicap bolted on afterwards.
 It is literally how long the opponent considers the problem before answering.
 Six rounds is someone eyeballing it; ten is someone doing the sums. Since human

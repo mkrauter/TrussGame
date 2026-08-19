@@ -126,6 +126,10 @@ half the width of a typical truss. **No part of the network had ever seen both
 supports at the same time.** I was asking it about a structure it could not look
 at in one go.
 
+![A truss with a shaded square showing how much of the picture one part of
+the network can see. The square is far narrower than the distance between
+the two supports.](images/receptive-field.png)
+
 That is a textbook problem with a textbook fix. I widened the field until it
 comfortably covered the whole truss, at no extra cost in model size, and
 retrained, confident this was the moment.
@@ -176,6 +180,10 @@ members exactly as force does.
 Read that description again and it is not really an algorithm. It is a
 conversation. Each joint talks to its neighbours, over and over, until they all
 agree.
+
+![The same truss three times. Blue spreads outward from the loaded joint:
+five joints reached after one round, seven after two, nine after
+three.](images/message-passing.png)
 
 And that turns out to describe a completely different family of neural network —
 one that operates on a *network of connected things* rather than on a grid of
@@ -256,13 +264,9 @@ Because the machine works by repeating the same conversation round after round,
 you can simply ask it to stop early. That does not damage it or add random error
 — it gives you a version that has not finished thinking.
 
-| rounds of thinking | score |
-|---|---|
-| 1 | 25% |
-| 4 | 47% |
-| 6 | 68% |
-| 8 | 86% |
-| 10 | 96% |
+![A curve rising from 25% at one round to 96% at ten, crossing the
+straight-down baseline at about five rounds and the human band at
+six.](images/difficulty.png)
 
 One dial, from novice to expert, and it is not a handicap bolted on afterwards.
 It is literally how long the opponent considers the problem before answering.

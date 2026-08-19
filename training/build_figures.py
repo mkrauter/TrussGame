@@ -241,6 +241,157 @@ def render_all():
         elephant()
         stiffness()
         not_straight_down()
+        receptive_field()
+        message_passing()
+        difficulty()
+
+
+
+
+# --------------------------------------------------------------------------
+# 4. What one part of a convolutional network can see at once.
+# --------------------------------------------------------------------------
+def receptive_field():
+    from trussnet import graph_data
+
+    _, samples = graph_data.load_raw('val')
+    s = samples[3]
+    pts = np.array(s['nodes'])
+    a, b = s['supports']
+    span = float(np.hypot(*(pts[b] - pts[a])))
+
+    # The network saw a 256px crop of a 768px region, so a receptive field of
+    # 106px there covers 106 * 3 = 318px of the picture the player sees.
+    field = 106 * 768 / 256
+    centre = pts[s['loadedNode']]
+
+    fig, ax = plt.subplots(figsize=(7.6, 5.0))
+    for i, j in s['elements']:
+        ax.plot(*zip(pts[i], pts[j]), color=FAINT, lw=1.4, zorder=1)
+    ax.scatter(*pts[[a, b]].T, marker='^', s=150, color=GREEN, zorder=4)
+    ax.scatter(*centre, s=70, color=BLUE, zorder=4)
+
+    ax.add_patch(plt.Rectangle((centre[0] - field / 2, centre[1] - field / 2),
+                               field, field, facecolor=BLUE, alpha=0.13,
+                               edgecolor=BLUE, lw=1.6, zorder=2))
+
+    # The span it needed to see, drawn between the two supports.
+    y = max(pts[:, 1]) + 70
+    ax.annotate('', xy=(pts[a][0], y), xytext=(pts[b][0], y),
+                arrowprops=dict(arrowstyle='<->', color=RED, lw=1.4))
+    ax.text((pts[a][0] + pts[b][0]) / 2, y + 26,
+            f'the supports are {span:.0f}px apart', ha='center', va='top',
+            color=RED, fontsize=10)
+    ax.text(centre[0], centre[1] - field / 2 - 14,
+            f'one unit sees {field:.0f}px', ha='center', va='bottom',
+            color=BLUE, fontsize=10, fontweight='bold',
+            path_effects=[path_effects.withStroke(linewidth=3.5, foreground=BG)])
+
+    ax.set_aspect('equal')
+    ax.invert_yaxis()
+    ax.axis('off')
+    ax.margins(0.15)
+    ax.set_title('No part of the network ever saw both supports at once.',
+                 color=INK, fontsize=11, pad=12)
+    save(fig, 'receptive-field')
+
+
+# --------------------------------------------------------------------------
+# 5. Message passing: one round is one step outward.
+# --------------------------------------------------------------------------
+def message_passing():
+    from trussnet import graph_data
+
+    _, samples = graph_data.load_raw('val')
+
+    def hops_from_load(sample):
+        start = sample['loadedNode']
+        neighbours = {i: [] for i in range(len(sample['nodes']))}
+        for i, j in sample['elements']:
+            neighbours[i].append(j)
+            neighbours[j].append(i)
+        hop = {start: 0}
+        frontier = [start]
+        while frontier:
+            nxt = []
+            for u in frontier:
+                for v in neighbours[u]:
+                    if v not in hop:
+                        hop[v] = hop[u] + 1
+                        nxt.append(v)
+            frontier = nxt
+        return hop
+
+    # Pick a truss where the news genuinely takes three rounds to arrive --
+    # on a tightly connected one the second and third panels are identical and
+    # the figure argues against itself.
+    s = max(samples[:400], key=lambda x: max(hops_from_load(x).values()))
+    hop = hops_from_load(s)
+    pts = np.array(s['nodes'])
+    start = s['loadedNode']
+
+    rounds = [1, 2, 3]
+    fig, axes = plt.subplots(1, len(rounds), figsize=(11.4, 3.9))
+    for ax, r in zip(axes, rounds):
+        for i, j in s['elements']:
+            lit = hop[i] < r and hop[j] <= r or hop[j] < r and hop[i] <= r
+            ax.plot(*zip(pts[i], pts[j]), color=BLUE if lit else FAINT,
+                    lw=2.0 if lit else 1.2, zorder=2 if lit else 1)
+        reached = [i for i in range(len(pts)) if hop[i] <= r]
+        ax.scatter(*pts[reached].T, s=42, color=BLUE, zorder=3)
+        ax.scatter(*pts[start], s=90, color=STRONG, zorder=4)
+        ax.set_aspect('equal')
+        ax.invert_yaxis()
+        ax.axis('off')
+        ax.margins(0.12)
+        covered = len(reached)
+        ax.set_title(f'round {r} — {covered} of {len(pts)} joints',
+                     color=INK, fontsize=10.5, pad=8)
+
+    fig.suptitle('News of the load travels one member per round.',
+                 color=INK, fontsize=12, y=1.04)
+    save(fig, 'message-passing')
+
+
+# --------------------------------------------------------------------------
+# 6. Difficulty is how long it thinks.
+# --------------------------------------------------------------------------
+def difficulty():
+    # Measured on the deployed model through the browser, over the validation
+    # seeds: `node training/eval_pixel_pipeline.mjs --rounds N`. Hardcoded
+    # rather than recomputed here because that needs a browser and the corpus;
+    # re-measure if the model is ever retrained.
+    rounds = np.array([1, 2, 4, 6, 8, 10])
+    score = np.array([24.6, 30.7, 46.4, 68.3, 85.6, 95.7])
+
+    fig, ax = plt.subplots(figsize=(7.2, 4.4))
+    ax.axhspan(70, 80, color=GREEN, alpha=0.14, zorder=0)
+    ax.text(1.15, 75, 'where human players sit', color=GREEN, fontsize=10,
+            va='center')
+    ax.axhline(59.5, color=RED, lw=1.3, ls=(0, (5, 4)), zorder=1)
+    # Right-aligned under the line: on the left it sat on top of the 4-round
+    # point, which is exactly where the curve crosses this threshold.
+    ax.text(10.4, 57, 'guessing straight down by the average', color=RED,
+            fontsize=10, va='top', ha='right')
+
+    ax.plot(rounds, score, color=BLUE, lw=2.4, marker='o', ms=7, zorder=3)
+    for r, sc in zip(rounds, score):
+        ax.annotate(f'{sc:.0f}%', (r, sc), textcoords='offset points',
+                    xytext=(0, 11), ha='center', color=BLUE, fontsize=9.5,
+                    fontweight='bold')
+
+    ax.set_xlabel('rounds of thinking before it answers', color=INK)
+    ax.set_ylabel('score', color=INK)
+    ax.set_ylim(0, 108)
+    ax.set_xticks(rounds)
+    ax.tick_params(colors=INK)
+    for side in ('top', 'right'):
+        ax.spines[side].set_visible(False)
+    for side in ('left', 'bottom'):
+        ax.spines[side].set_color(FAINT)
+    ax.grid(axis='y', color=FAINT, alpha=0.35, lw=0.7)
+    ax.set_axisbelow(True)
+    save(fig, 'difficulty')
 
 
 if __name__ == '__main__':
