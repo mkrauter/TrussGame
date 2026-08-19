@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Can a machine learn engineering intuition?</title>
+<meta name="description" content="I built a small game about how structures bend, then spent a few weeks teaching a computer to play it. It fooled me completely, and then sat on a shelf for years before I found out">
+
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%23404040'/><polygon points='16,26 6,8 26,8' fill='%236c6cd2'/></svg>">
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="Can a machine learn engineering intuition?">
+<meta property="og:description" content="I built a small game about how structures bend, then spent a few weeks teaching a computer to play it. It fooled me completely, and then sat on a shelf for years before I found out">
+<meta property="og:image" content="https://mkrauter.github.io/TrussGame/images/screenshot.jpg">
+<meta property="og:url" content="https://mkrauter.github.io/TrussGame/web/article/">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #fbfaf8;
+    --text: #1e1c1a;
+    --muted: #6a6560;
+    --rule: #e2ddd6;
+    --accent: #3b4fd8;
+    --panel: #f2efea;
+    --serif: "Source Serif 4", Charter, Georgia, "Times New Roman", serif;
+    --sans: Inter, "Segoe UI", system-ui, -apple-system, sans-serif;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #191a1c;
+      --text: #e8e6e3;
+      --muted: #a39e98;
+      --rule: #35373a;
+      --accent: #9d9dea;
+      --panel: #232427;
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    margin: 0;
+    padding: 0 24px 96px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--serif);
+    /* 20px with generous leading: this is meant to be read, not skimmed. */
+    font-size: 20px;
+    line-height: 1.7;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ~65 characters per line, the measure typographers keep arriving at. */
+  article { max-width: 34em; margin: 0 auto; }
+
+  .masthead {
+    max-width: 34em;
+    margin: 0 auto;
+    padding: 28px 0 0;
+    font-family: var(--sans);
+    font-size: 0.72rem;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .masthead a { color: inherit; text-decoration: none; }
+  .masthead a:hover { color: var(--accent); }
+
+  h1 {
+    font-family: var(--sans);
+    font-size: clamp(2.1rem, 6vw, 3.1rem);
+    line-height: 1.12;
+    letter-spacing: -0.025em;
+    font-weight: 700;
+    margin: 40px 0 0;
+  }
+
+  .standfirst {
+    font-size: 1.22rem;
+    line-height: 1.55;
+    color: var(--muted);
+    font-style: italic;
+    margin: 22px 0 0;
+  }
+
+  .byline {
+    font-family: var(--sans);
+    font-size: 0.86rem;
+    color: var(--muted);
+    font-style: normal;
+    margin: 30px 0 0;
+    padding-bottom: 30px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .byline b { color: var(--text); font-weight: 600; }
+
+  h2 {
+    font-family: var(--sans);
+    font-size: 1.42rem;
+    line-height: 1.25;
+    letter-spacing: -0.012em;
+    font-weight: 600;
+    margin: 2.6em 0 0.7em;
+  }
+
+  p { margin: 0 0 1.35em; }
+
+  /* The opening line gets the newspaper treatment -- the first paragraph of the
+     body, not the standfirst, which is why this hangs off .byline. */
+  .byline + p::first-letter {
+    float: left;
+    font-size: 3.5em;
+    line-height: 0.84;
+    padding: 0.05em 0.09em 0 0;
+    font-weight: 600;
+  }
+
+  a { color: var(--accent); text-underline-offset: 0.18em; }
+
+  strong { font-weight: 600; }
+
+  blockquote {
+    margin: 2em 0;
+    padding: 0 0 0 1.2em;
+    border-left: 3px solid var(--accent);
+    font-size: 1.16rem;
+    color: var(--muted);
+  }
+  blockquote p { margin: 0; }
+
+  ul { padding-left: 1.2em; }
+  li { margin-bottom: 0.6em; }
+
+  /* Tables read as small inset panels rather than spreadsheets. */
+  .table-wrap { overflow-x: auto; margin: 2em 0; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--sans);
+    font-size: 0.92rem;
+    background: var(--panel);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  th, td { padding: 11px 16px; text-align: left; }
+  thead th {
+    font-size: 0.74rem;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 600;
+  }
+  tbody tr + tr td { border-top: 1px solid var(--rule); }
+  td:last-child, th:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+
+  code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.86em;
+    background: var(--panel);
+    padding: 0.1em 0.35em;
+    border-radius: 4px;
+  }
+
+  hr { border: 0; border-top: 1px solid var(--rule); margin: 3em 0; }
+
+  .play {
+    margin: 3em 0;
+    padding: 26px 28px;
+    background: var(--panel);
+    border-radius: 12px;
+    font-family: var(--sans);
+    font-size: 0.98rem;
+    line-height: 1.6;
+  }
+  .play strong { display: block; font-size: 1.1rem; margin-bottom: 6px; }
+
+  footer {
+    max-width: 34em;
+    margin: 4em auto 0;
+    padding-top: 26px;
+    border-top: 1px solid var(--rule);
+    font-family: var(--sans);
+    font-size: 0.88rem;
+    color: var(--muted);
+  }
+</style>
+</head>
+<body>
+
+<div class="masthead"><a href="../../">Truss game</a></div>
+
+<article>
+<h1>Can a machine learn engineering intuition?</h1>
+<p class="standfirst">I built a small game about how structures bend, then spent a few weeks teaching a computer to play it. It fooled me completely, and then sat on a shelf for years before I found out why. What finally worked had nothing to do with a bigger model — and quite a lot to do with admitting I had picked the wrong kind of machine.</p>
+<p class="byline">By <b>Márton Krauter</b> · 11 min read</p>
+
+<p>Here is a puzzle. Ten steel joints, scattered at random and wired together into
+triangles. The two outermost joints are bolted to the ground. Now hang a weight
+on one of the others.</p>
+<p>Where does that joint end up?</p>
+<p>Not straight down — that is the first thing everyone gets wrong. A joint in a
+truss cannot go wherever it likes. It is held by the members attached to it, and
+they are held by their members, and so on out to the ground. The joint slides
+along whatever path the whole structure permits, which is often sideways, and
+occasionally <em>upwards</em>.</p>
+<p>You cannot calculate this in your head. But you can develop a feel for it. Play
+a few rounds and you start reading the shape — this one will swing left, this
+one will barely move — without knowing why you know. Engineers call it intuition.
+It is one of the more mysterious things a human brain does, and it is the reason
+I wanted to find out whether a machine could do it too.</p>
+<h2>The game</h2>
+<p>Years ago, when I joined a large structural engineering firm, I wanted to show
+colleagues how much fun writing code can be, and how much you can do in very few
+lines of it. So I wrote a small game: it draws a random truss, you click where
+you think the loaded joint will settle, and then it runs the simulation and
+scores you.</p>
+<p>The whole thing — the physics, the graphics, the animation — came to
+eighty-five lines.</p>
+<p>The scoring matters for what follows, so bear with me for one paragraph.
+<strong>100%</strong> means you clicked exactly where the joint settled. <strong>0%</strong> means you
+missed by at least as far as the joint actually travelled. So your score is the
+<em>share of the movement</em> you predicted, not a distance. Guess the joint&rsquo;s
+starting position and you score exactly zero, however small the movement was.</p>
+<p>Human players, after a few rounds of practice, land somewhere around 70–80%.</p>
+<h2>The obvious idea</h2>
+<p>If a person can learn this by looking, could a neural network?</p>
+<p>The natural fit seemed to be the kind of network that recognises objects in
+photographs. Those work by scanning an image with small filters that detect
+local patterns — an edge here, a corner there — and stacking those detections
+into progressively larger ideas. It is the technology behind every &ldquo;what breed
+is this dog&rdquo; demo you have ever seen, and it is very good.</p>
+<p>So: feed it a screenshot of the truss, ask it for two numbers — the coordinates
+where the joint will end up — and show it a few thousand examples with the
+correct answers. Standard stuff. It trained in about ten minutes on a free
+cloud GPU.</p>
+<p>That was 2021, and the whole thing took a few weeks of evenings. It scored
+around 60%, and I was delighted. It seemed to have picked up something real
+about mechanics just by staring at pictures.</p>
+<p>Then life happened, and the project went quietly to sleep for the next several
+years.</p>
+<h2>The question I forgot to ask</h2>
+<p>When I finally dug the project out again, I started with the one thing I should
+have done on the first afternoon and never got around to: work out what the
+<em>dumbest possible strategy</em> scores.</p>
+<p>Not a clever comparison. The dumbest one. Ignore the truss entirely. Find the
+loaded joint, and move it straight down by the average distance that joints
+move. One line of arithmetic, no learning, no understanding.</p>
+<p><strong>That scores 59.5%.</strong></p>
+<p>My network scored 60.5%.</p>
+<p>The thing I had been quietly proud of for years was worth one percentage point
+over a rule you could write on a napkin.</p>
+<p>Worse, when you pull the model apart, that is precisely what it was doing. It
+located the loaded joint in the image almost perfectly — it was excellent at
+<em>seeing</em>. But its guess about how far the joint would move was, measurably, worse
+than just always guessing the average. It shifted the joint by about 135 pixels
+when the truth averaged 155, no matter what the structure looked like.</p>
+<p>It had never learned mechanics at all. It had learned to find the blue dot and
+nudge it downward. And because the scoring rule is generous to anyone who knows
+roughly how far things move, that was enough to look clever.</p>
+<p>There is a line the physicist Enrico Fermi liked to quote from John von Neumann,
+about theories that fit the data for the wrong reasons:</p>
+<blockquote>
+<p><em>&ldquo;With four parameters I can fit an elephant, and with five I can make him
+wiggle his trunk.&rdquo;</em></p>
+</blockquote>
+<p>My model had 307,618 of them. It had fitted a rather good elephant.</p>
+<h2>Trying harder does not help</h2>
+<p>My first instinct was that the network was simply too crude, and it was — built
+by a beginner, with several rookie mistakes in it. So I rebuilt it properly,
+with everything the last few years of practice would recommend.</p>
+<p>That got it to <strong>77%</strong>. Real progress, and past the napkin rule at last.</p>
+<p>Then I found what looked like the smoking gun.</p>
+<p>These networks have something called a <em>receptive field</em>: the amount of the
+picture that any one part of the network can actually see at once. Because they
+work by combining small local patches, that field is limited, and mine was about
+half the width of a typical truss. <strong>No part of the network had ever seen both
+supports at the same time.</strong> I was asking it about a structure it could not look
+at in one go.</p>
+<p>That is a textbook problem with a textbook fix. I widened the field until it
+comfortably covered the whole truss, at no extra cost in model size, and
+retrained, confident this was the moment.</p>
+<p>It got <strong>worse</strong>. Not by much. But consistently — and the version that could see
+furthest was the one that started off worst.</p>
+<p>I stared at that result for a long time. It is the single most useful thing that
+happened in this project, because it meant my diagnosis was wrong, and wrong in a
+way that pointed somewhere specific.</p>
+<h2>A truss is not a picture. It is an argument.</h2>
+<p>Here is what I had missed.</p>
+<p>When you load a truss, every joint&rsquo;s final position depends on <em>every other
+joint</em>. Pull one corner of a fishing net and the whole net rearranges itself.
+There is no such thing as a local answer: the joint you care about cannot settle
+until its neighbours settle, and they cannot settle until their neighbours do,
+all the way to the ground and back.</p>
+<p>Image networks are built on the opposite assumption. They work brilliantly for
+pictures precisely because pictures <em>are</em> mostly local — a cat&rsquo;s ear is a cat&rsquo;s
+ear regardless of what is happening in the far corner of the photo. Stacking
+local detectors lets information travel a certain distance, and that distance is
+what the receptive field measures.</p>
+<p>But no amount of stacking local detectors turns them into something that
+resolves an all-at-once, everything-depends-on-everything problem. Reach was
+never what was missing. I had been trying to fix the size of the tool when the
+issue was that I had brought the wrong tool.</p>
+<h2>How engineers actually do it</h2>
+<p>The fix came from looking at how these problems are solved without any machine
+learning at all.</p>
+<p>For a structure of real size, nobody solves the equations in one shot. They
+solve them <em>iteratively</em>: each joint looks at the joints it is physically
+connected to, works out how hard they are pulling on it, adjusts itself
+slightly, and then everyone does it again. Round after round, the whole
+structure converges on its answer, and information travels outward through the
+members exactly as force does.</p>
+<p>Read that description again and it is not really an algorithm. It is a
+conversation. Each joint talks to its neighbours, over and over, until they all
+agree.</p>
+<p>And that turns out to describe a completely different family of neural network —
+one that operates on a <em>network of connected things</em> rather than on a grid of
+pixels. Joints become nodes. Members become the channels they talk along. One
+round of the conversation is one round of the network. Instead of asking a
+picture-reader to somehow imply the physics, you build a machine whose shape is
+already the shape of the problem.</p>
+<p>Two more decisions made it work, and both are about restraint rather than
+cleverness:</p>
+<p><strong>Tell it what you already know.</strong> I know exactly how stiff each member is —
+that is simple geometry. So I hand that to the network as an input instead of
+making it rediscover the concept from scratch. I know the two supports do not
+move, so I fix them rather than hoping the network learns to hold them still.
+Every one of those is capacity not wasted relearning something I could just write
+down.</p>
+<p><strong>Let physics mark its own homework.</strong> I know the equation the true answer has to
+satisfy — essentially, that all the forces at every joint must cancel out. So
+during training I can check any guess against that equation directly, <em>without
+needing to know the right answer</em>. The network gets told not just &ldquo;you were
+wrong&rdquo; but &ldquo;your answer is not in equilibrium&rdquo;, which is a far more useful
+complaint.</p>
+<h2>42,498 parameters</h2>
+<p>That is the whole model. About a seventh the size of the one that was fitting
+elephants — and it scores <strong>96%</strong>.</p>
+<p>More telling than the score: as training goes on, its answers drift steadily
+closer to satisfying the equilibrium equation. It is not memorising which
+pictures go with which answers. It is converging on solutions that are
+<em>physically consistent</em>, which is a fair description of what it means to
+understand something.</p>
+<h2>&ldquo;Hang on — that&rsquo;s cheating&rdquo;</h2>
+<p>Quite right, and this was the objection I had to take most seriously.</p>
+<p>The founding rule of the project was that the machine gets exactly what a human
+player gets: the picture on screen, nothing else. Handing it a tidy list of joint
+coordinates is not playing the game.</p>
+<p>So I measured how much that rule actually costs. Take a <em>perfect</em> solver and
+blur its reading of where the joints are, the way an eye blurs things. At the
+precision a person reads a screen — a pixel or three — a perfect solver still
+scores 97–99%. Give it exact coordinates and it scores 100%.</p>
+<p>In other words: <strong>crisp eyesight is worth about two points. Doing the mechanics
+is worth forty.</strong> The seeing was never the hard part, which in hindsight is
+exactly what the first model was telling me when it located the joint perfectly
+and then guessed the average.</p>
+<p>That is interesting, and it is still not a reason to break the rule. So the
+current version reads the screen. It just does not use the same machinery for
+looking and for thinking:</p>
+<ul>
+<li>A small network — 9,101 parameters, tiny — scans the image and finds the
+  joints, working out which are supports and which is loaded.</li>
+<li>Which joints are connected is settled by simply <em>looking</em>: is there a line
+  drawn between these two? That part is not learned at all, and should not be.
+  &ldquo;Is there a line here&rdquo; is a question you answer by checking; a neural network
+  could only add a way to get it wrong.</li>
+<li>The conversation network then does the mechanics on the structure that came
+  out of that.</li>
+</ul>
+<p>Picture-readers do what picture-readers are genuinely brilliant at, and the
+structural reasoning happens somewhere better suited to it. End to end, from
+pixels alone: <strong>96.3%</strong>. Almost all of the remaining error is eyesight — a
+flawless solver with the same eyes would score about 98%.</p>
+<h2>Difficulty you can measure in thinking</h2>
+<p>There is a small delight at the end of this.</p>
+<p>Because the machine works by repeating the same conversation round after round,
+you can simply ask it to stop early. That does not damage it or add random error
+— it gives you a version that has not finished thinking.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>rounds of thinking</th>
+<th>score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>25%</td>
+</tr>
+<tr>
+<td>4</td>
+<td>47%</td>
+</tr>
+<tr>
+<td>6</td>
+<td>68%</td>
+</tr>
+<tr>
+<td>8</td>
+<td>86%</td>
+</tr>
+<tr>
+<td>10</td>
+<td>96%</td>
+</tr>
+</tbody>
+</table></div>
+<p>One dial, from novice to expert, and it is not a handicap bolted on afterwards.
+It is literally how long the opponent considers the problem before answering.
+Six rounds is someone eyeballing it; ten is someone doing the sums. Since human
+players sit around 70–80%, seven or so makes for a properly close game.</p>
+<h2>What I actually learned</h2>
+<p><strong>Check what &ldquo;doing nothing clever&rdquo; scores, before you believe anything.</strong> The
+napkin rule matched the model I was proud of. Ten minutes on the first afternoon
+would have saved me years of believing something that was not true — not years of
+work, but years of a comfortable illusion nobody had any reason to poke at.</p>
+<p><strong>Match the tool to the shape of the problem, not the shape of the data.</strong> My
+data arrived as pictures, so I reached for the picture tool. But the problem was
+never really about pictures — it was about everything depending on everything —
+and no amount of tuning was going to bridge that.</p>
+<p><strong>A smaller model that is shaped correctly beats a larger one that is not.</strong> The
+final version is a seventh the size and thirty-six points better. It was never
+short of capacity. It was wired for the wrong job.</p>
+<p>And one that I did not expect: the thing that finally worked was not a machine
+learning idea at all. It was a numerical method from the 1940s, which I already
+knew, and which I had failed to recognise because I was busy thinking about
+neural networks instead of about trusses.</p>
+<h2>Play it</h2>
+<p>All three versions run in your browser, no download:
+<a href="https://mkrauter.github.io/TrussGame/">mkrauter.github.io/TrussGame</a> — the
+original game, the 2021 model, and the current one. Press <strong>V</strong> while playing
+the newest version to see the structure it recovered from the screen, which I
+find oddly satisfying to watch.</p>
+<p>If you want the actual mathematics — the stiffness matrices, the message
+passing, the equilibrium loss, and the experiment where widening the receptive
+field made things worse — it is all in
+<a href="https://colab.research.google.com/github/mkrauter/TrussGame/blob/master/truss_game_v3_training.ipynb">a notebook</a>
+you can run for free. It builds the training data and trains the model to 96% in
+about six minutes, so you can watch it happen rather than take my word for it.</p>
+<p>And if you can close the gap between 96.3% and the 98% that eyesight allows, or
+get there with fewer parameters — please tell me. Preferably before another five
+years go by.</p>
+</article>
+
+<footer>
+  <p>All three versions of the game, the source, and the notebook are at
+  <a href="https://github.com/mkrauter/TrussGame">github.com/mkrauter/TrussGame</a>.</p>
+</footer>
+
+</body>
+</html>

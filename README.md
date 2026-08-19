@@ -9,8 +9,9 @@ The AI never sees node coordinates or the topology, only the rendered image.
 That constraint is the point of the project: it is what makes the comparison
 against a human fair.
 
-Read more about the idea in
-['Is a fruit fly a smarter engineer than you?'](https://marton-krauter.medium.com/is-a-fruit-fly-a-smarter-engineer-than-you-850db1031fe8)
+Read the story of how it was built — and why the first attempt spent years
+looking cleverer than it was — in
+[**Can a machine learn engineering intuition?**](https://mkrauter.github.io/TrussGame/web/article/)
 
 ## Three versions
 
