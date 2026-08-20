@@ -309,34 +309,50 @@ def receptive_field():
     field = 106 * 768 / 256
     centre = pts[s['loadedNode']]
 
-    fig, ax = plt.subplots(figsize=(7.6, 5.0))
+    # Centred between the two supports: the most generous position there is. If
+    # it cannot reach them from here it cannot reach them from anywhere, which
+    # is the claim -- one example placed arbitrarily would not support it.
+    midpoint = (pts[a] + pts[b]) / 2
+    halo = [path_effects.withStroke(linewidth=3.5, foreground=BG)]
+
+    fig, ax = plt.subplots(figsize=(8.0, 5.4))
     for i, j in s['elements']:
         ax.plot(*zip(pts[i], pts[j]), color=FAINT, lw=1.4, zorder=1)
-    ax.scatter(*pts[[a, b]].T, marker='^', s=150, color=GREEN, zorder=4)
-    ax.scatter(*centre, s=70, color=BLUE, zorder=4)
+    ax.scatter(*pts[[a, b]].T, marker='^', s=170, color=GREEN, zorder=4)
 
-    ax.add_patch(plt.Rectangle((centre[0] - field / 2, centre[1] - field / 2),
+    ax.add_patch(plt.Rectangle((midpoint[0] - field / 2, midpoint[1] - field / 2),
                                field, field, facecolor=BLUE, alpha=0.13,
-                               edgecolor=BLUE, lw=1.6, zorder=2))
+                               edgecolor=BLUE, lw=1.8, zorder=2))
+    ax.text(midpoint[0], midpoint[1], 'all one part of\nthe network can\nsee at once',
+            ha='center', va='center', color=BLUE, fontsize=10.5,
+            fontweight='bold', zorder=5, path_effects=halo)
 
-    # The span it needed to see, drawn between the two supports.
-    y = max(pts[:, 1]) + 70
-    ax.annotate('', xy=(pts[a][0], y), xytext=(pts[b][0], y),
-                arrowprops=dict(arrowstyle='<->', color=RED, lw=1.4))
-    ax.text((pts[a][0] + pts[b][0]) / 2, y + 26,
-            f'the supports are {span:.0f}px apart', ha='center', va='top',
-            color=RED, fontsize=10)
-    ax.text(centre[0], centre[1] - field / 2 - 14,
-            f'one unit sees {field:.0f}px', ha='center', va='bottom',
-            color=BLUE, fontsize=10, fontweight='bold',
-            path_effects=[path_effects.withStroke(linewidth=3.5, foreground=BG)])
+    # The two gaps it falls short by, one at each end. Drawn at each support's
+    # own height so the arrow visibly ends on the triangle, rather than floating
+    # at the box's mid-height pointing at nothing.
+    for support, sign in ((pts[a], -1), (pts[b], 1)):
+        edge = midpoint[0] + sign * field / 2
+        ax.annotate('', xy=(support[0], support[1]), xytext=(edge, support[1]),
+                    arrowprops=dict(arrowstyle='<->', color=RED, lw=1.3,
+                                    shrinkA=0, shrinkB=5), zorder=6)
+    ax.text(midpoint[0], max(pts[:, 1]) + 58,
+            'it falls short of a support at both ends — and this is the best\n'
+            'position it could possibly be in',
+            ha='center', va='top', color=RED, fontsize=10, zorder=6)
+
+    for support, side in ((pts[a], 'right'), (pts[b], 'left')):
+        ax.annotate('support', (support[0], support[1]),
+                    textcoords='offset points',
+                    xytext=(-14 if side == 'right' else 14, -18),
+                    ha=side, color=GREEN, fontsize=10, path_effects=halo, zorder=6)
 
     ax.set_aspect('equal')
     ax.invert_yaxis()
     ax.axis('off')
-    ax.margins(0.15)
-    ax.set_title('No part of the network ever saw both supports at once.',
-                 color=INK, fontsize=11, pad=12)
+    ax.margins(0.17)
+    ax.set_title('To work out where anything goes, it has to see both supports.\n'
+                 'It never could.',
+                 color=INK, fontsize=11.5, pad=14)
     save(fig, 'receptive-field')
 
 

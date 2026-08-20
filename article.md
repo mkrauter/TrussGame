@@ -131,9 +131,9 @@ half the width of a typical truss. **No part of the network had ever seen both
 supports at the same time.** I was asking it about a structure it could not look
 at in one go.
 
-![A truss with a shaded square showing how much of the picture one part of
-the network can see. The square is far narrower than the distance between
-the two supports.](images/receptive-field.png)
+![A truss with a shaded square over it, marking how much of the picture one
+part of the network can see at once. The square sits centred between the two
+supports and still falls short of reaching either of them.](images/receptive-field.png)
 
 That is a textbook problem with a textbook fix. I widened the field until it
 comfortably covered the whole truss, at no extra cost in model size, and
