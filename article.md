@@ -112,7 +112,13 @@ about theories that fit the data for the wrong reasons:
 ![An elephant drawn as a single closed curve, with two faint copies showing
 its trunk swung up and down.](images/elephant.png)
 
-My model had 307,618 of them. It had fitted a rather good elephant.
+My model had 307,618 of them, so I quoted that at myself and concluded I had
+built something too big to trust.
+
+That was the wrong lesson too, and it is worth flagging now because it is the
+one I would most like to have back. The problem was never how many numbers the
+model had. But the elephant was real enough: the fit looked convincing for a
+reason that had nothing to do with mechanics.
 
 ## Trying harder does not help
 
