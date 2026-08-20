@@ -134,34 +134,78 @@ def stiffness():
                           [-c * sn, -sn * sn, c * sn, sn * sn]])
         K[np.ix_(rows, rows)] += block / L
 
-    free = np.array(sorted(set(range(2 * n)) - {s['supports'][0] * 2, s['supports'][0] * 2 + 1,
-                                                s['supports'][1] * 2, s['supports'][1] * 2 + 1}))
+    joints = [i for i in range(n) if i not in s['supports']]
+    free = np.array([d for i in joints for d in (i * 2, i * 2 + 1)])
     Kff = K[np.ix_(free, free)]
     inverse = np.linalg.inv(Kff)
 
-    # State what the picture actually shows. A ten-joint truss is small, so K is
-    # only moderately sparse; the striking half is the inverse, which has no
-    # zeros at all. Claiming "mostly empty" would overstate the left panel.
-    empty_k = (np.abs(Kff) < 1e-12).mean() * 100
-    empty_inv = (np.abs(inverse) < 1e-12).mean() * 100
+    # Collapse each 2x2 block to one number per pair of joints. The raw matrices
+    # carry two rows per joint, one per direction, which is a detail the article
+    # never mentions and a reader would have to be told to ignore. One cell per
+    # pair of joints is a claim they can read straight off: does this joint
+    # affect that one.
+    def per_joint(matrix):
+        size = len(joints)
+        out = np.zeros((size, size))
+        for a in range(size):
+            for b in range(size):
+                out[a, b] = np.linalg.norm(matrix[2 * a:2 * a + 2, 2 * b:2 * b + 2])
+        return out
 
-    fig, axes = plt.subplots(1, 2, figsize=(9.2, 4.6))
-    for ax, matrix, title, note in (
-        (axes[0], Kff, 'K', f'one block per member.\n{empty_k:.0f}% of it is zero'),
-        (axes[1], inverse, 'K$^{-1}$', f'{empty_inv:.0f}% zero. every joint\nmoves every other joint'),
-    ):
-        magnitude = np.abs(matrix) / np.abs(matrix).max()
+    connected = per_joint(Kff)
+    influence = per_joint(inverse)
+
+    # Somewhere the two panels visibly disagree: a pair with no member between
+    # them that nonetheless moves each other. Pointing at one specific square is
+    # what turns this from decoration into an argument.
+    gap = None
+    for a in range(len(joints)):
+        for b in range(len(joints)):
+            if a != b and connected[a, b] < 1e-12:
+                gap = (a, b)
+                break
+        if gap:
+            break
+
+    fig, axes = plt.subplots(1, 2, figsize=(9.6, 5.0))
+    panels = (
+        (axes[0], connected, 'Joined by a member',
+         'a few neighbours each —\nthe blank squares are pairs\nwith nothing between them'),
+        (axes[1], influence, 'Actually moves it',
+         'no blank squares at all —\nload one joint and every\nother joint shifts'),
+    )
+    for ax, matrix, title, note in panels:
+        magnitude = matrix / matrix.max()
         ax.imshow(magnitude ** 0.35, cmap=CMAP, vmin=0, vmax=1)
-        ax.set_title(title, color=STRONG, fontsize=15, pad=8)
-        ax.text(0.5, -0.13, note, transform=ax.transAxes, ha='center',
-                va='top', color=INK, fontsize=10)
+        ax.set_title(title, color=STRONG, fontsize=13, pad=10)
+        ax.text(0.5, -0.14, note, transform=ax.transAxes, ha='center',
+                va='top', color=INK, fontsize=9.5)
+        ax.set_xlabel('each column is a joint', color=INK, fontsize=9, labelpad=2)
+        ax.set_ylabel('each row is a joint', color=INK, fontsize=9, labelpad=2)
         ax.set_xticks([])
         ax.set_yticks([])
         for spine in ax.spines.values():
             spine.set_color(FAINT)
 
-    fig.suptitle('The structure is local. The answer to it is not.',
-                 color=INK, fontsize=12, y=1.02)
+        if gap:
+            ax.add_patch(plt.Rectangle((gap[1] - 0.5, gap[0] - 0.5), 1, 1,
+                                       fill=False, edgecolor=RED, lw=2.2, zorder=3))
+
+    if gap:
+        # Above the grid, not on it: red text over blue cells is unreadable, and
+        # a halo alone does not rescue it.
+        halo = [path_effects.withStroke(linewidth=3.5, foreground=BG)]
+        for ax, text in ((axes[0], 'these two are not connected'),
+                         (axes[1], 'and they still move each other')):
+            ax.annotate(text, (gap[1], gap[0] - 0.5),
+                        textcoords='offset points', xytext=(0, 24),
+                        ha='center', va='bottom', color=RED, fontsize=9.5,
+                        path_effects=halo, annotation_clip=False,
+                        arrowprops=dict(arrowstyle='-|>', color=RED, lw=1.3,
+                                        shrinkA=2, shrinkB=2))
+
+    fig.suptitle('The structure is local. What it does is not.',
+                 color=INK, fontsize=12.5, y=1.03)
     save(fig, 'stiffness')
 
 

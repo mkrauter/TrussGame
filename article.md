@@ -156,8 +156,9 @@ There is no such thing as a local answer: the joint you care about cannot settle
 until its neighbours settle, and they cannot settle until their neighbours do,
 all the way to the ground and back.
 
-![Two matrices side by side. K has visible gaps in it; its inverse is
-completely filled in.](images/stiffness.png)
+![Two grids of squares, one square per pair of joints. The left grid, showing
+which joints are joined by a member, has many blank squares. The right grid,
+showing which joints actually move each other, has none.](images/stiffness.png)
 
 Image networks are built on the opposite assumption. They work brilliantly for
 pictures precisely because pictures *are* mostly local — a cat's ear is a cat's
