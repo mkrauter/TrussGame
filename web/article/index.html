@@ -291,10 +291,12 @@ where the joint will end up — and show it a few thousand examples with the
 correct answers. Standard stuff. It trained in about ten minutes on a free
 cloud GPU.</p>
 <p>That was 2021, and the whole thing took a few weeks of evenings. It scored
-around 60%, and I was delighted. It seemed to have picked up something real
+around 62%, and I was delighted. It seemed to have picked up something real
 about mechanics just by staring at pictures.</p>
-<p>Then life happened, and the project went quietly to sleep for the next several
-years.</p>
+<p>I kept at it for a while — more layers, fewer layers, more data, longer
+training. The results were occasionally good and mostly mediocre, and none of
+them was clearly better than the first. Then life happened, and the project went
+quietly to sleep for the next several years.</p>
 <h2>The question I forgot to ask</h2>
 <p>When I finally dug the project out again, I started with the one thing I should
 have done on the first afternoon and never got around to: work out what the
@@ -303,14 +305,15 @@ have done on the first afternoon and never got around to: work out what the
 loaded joint, and move it straight down by the average distance that joints
 move. One line of arithmetic, no learning, no understanding.</p>
 <p><strong>That scores 59.5%.</strong></p>
-<p>My network scored 60.5%.</p>
-<p>The thing I had been quietly proud of for years was worth one percentage point
-over a rule you could write on a napkin.</p>
+<p>My best network scored 61.7%.</p>
+<p>Two points. The thing I had been quietly proud of for years was worth two
+percentage points over a rule you could write on a napkin — and I trained a
+good many networks to get there.</p>
 <p>Worse, when you pull the model apart, that is precisely what it was doing. It
 located the loaded joint in the image almost perfectly — it was excellent at
 <em>seeing</em>. But its guess about how far the joint would move was, measurably, worse
-than just always guessing the average. It shifted the joint by about 135 pixels
-when the truth averaged 155, no matter what the structure looked like.</p>
+than just always guessing the average. It shifted the joint by about 138 pixels
+when the truth averaged 156, no matter what the structure looked like.</p>
 <p>It had never learned mechanics at all. It had learned to find the blue dot and
 nudge it downward. And because the scoring rule is generous to anyone who knows
 roughly how far things move, that was enough to look clever.</p>

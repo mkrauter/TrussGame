@@ -1,15 +1,19 @@
 // v2 in the browser: you against the 2023 tflite model.
 //
-// A port of truss_game_AI.py. The model is the one that shipped, unchanged --
+// A port of truss_game_AI.py, running the 2023 model unchanged --
 // its weights are lifted out of the flatbuffer by training/export_tflite.py and
 // replayed by src/tflite.js, checked against LiteRT to 0.0002px.
 //
-// It is not good, and that is the point of keeping it. Measured through this
-// port over 600 trusses it scores 60.5%, level with the 59.5% you get from
-// "drop it straight down by the average distance" -- it moves the node 135px
-// where the truth is 155px, and its predicted displacement has a negative
-// R-squared against simply guessing the mean. It finds the node and drops it.
-// v3 scores 96.3% on the same task.
+// It is not good, and that is the point of keeping it. Over 2400 trusses in
+// this layout it scores 61.7%, against 59.5% for "drop it straight down by the
+// average distance" -- it moves the node 138px where the truth is 156px. It
+// finds the node and drops it. v3 scores 96.3% on the same task.
+//
+// This is retrained_250, recovered from the Recycle Bin: the best surviving
+// model of several trained in 2023, written by TensorFlow 2.9 in September of
+// that year. It beats the one that had been sitting in the repository by
+// 1.41 points, 95% CI [+0.58, +2.26] -- real, but it took 2400 trusses to
+// resolve, and at 600 the difference was indistinguishable from noise.
 //
 // It was trained on pygame's hairlines and this page draws v3's thicker
 // members. Measured either way the difference is a point or so, which 150

@@ -27,7 +27,9 @@ await new Promise((r) => server.listen(0, '127.0.0.1', r));
 const browser = await chromium.launch();
 const page = await browser.newPage({ deviceScaleFactor: 1 });
 page.on('pageerror', (e) => { throw e; });
-await page.goto(`http://127.0.0.1:${server.address().port}/training/v2_harness.html`);
+const which = args.model ?? 'trussv2';
+await page.goto(
+  `http://127.0.0.1:${server.address().port}/training/v2_harness.html?model=${which}`);
 await page.waitForFunction('window.harnessReady === true');
 
 const rows = [];
@@ -47,4 +49,7 @@ console.log(`  mean score        ${mean.toFixed(2)}%`);
 console.log(`  median            ${scores[Math.floor(scores.length / 2)].toFixed(2)}%`);
 console.log(`  zero rounds       ${scores.filter((s) => s === 0).length}`);
 console.log(`  mean predicted move ${avg((r) => r.fromStart).toFixed(1)} px vs true ${avg((r) => r.travelled).toFixed(1)} px`);
-console.log(`  ${avg((r) => r.ms).toFixed(0)} ms per move`);
+console.log(`  ${avg((r) => r.ms).toFixed(0)} ms per move   [model: ${which}]`);
+// Per-round scores, so two models can be compared pairwise rather than by
+// eyeballing two means a standard error apart.
+if (args.dump) fs.writeFileSync(args.dump, JSON.stringify(rows.map((r) => r.score)));

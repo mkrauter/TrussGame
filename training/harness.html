@@ -34,6 +34,13 @@ const sceneCtx = scene.getContext('2d', { willReadFrequently: true });
 const sizeOverride = Number(new URLSearchParams(location.search).get('size'));
 const captureSize = sizeOverride || MODEL.inputSize;
 
+// Truss geometry can be overridden: v2 and v3 place their trusses differently,
+// and a model has to be scored on the layout it was actually trained for.
+const search = new URLSearchParams(location.search);
+const trussOptions = {};
+if (search.get('offset')) trussOptions.offset = search.get('offset').split(',').map(Number);
+if (search.get('minDistance')) trussOptions.minDistance = Number(search.get('minDistance'));
+
 const capture = document.getElementById('capture');
 capture.width = captureSize;
 capture.height = captureSize;
@@ -47,7 +54,7 @@ window.generateBatch = (startIndex, count, seedBase) => {
 
   for (let i = 0; i < count; i++) {
     const index = startIndex + i;
-    const truss = new Truss(mulberry32(seedBase + index));
+    const truss = new Truss(mulberry32(seedBase + index), trussOptions);
 
     drawScene(sceneCtx, truss);
     captureModelInput(scene, capture);

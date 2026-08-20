@@ -63,7 +63,13 @@ const browser = await chromium.launch({ headless: args.headed === undefined });
 const page = await browser.newPage({ deviceScaleFactor: 1 });
 
 page.on('pageerror', (e) => { throw e; });
-const query = args.size ? `?size=${Number(args.size)}` : '';
+// Truss geometry can be overridden too: v2 and v3 place their trusses
+// differently, and a model has to be scored on the layout it was trained for.
+const params = new URLSearchParams();
+if (args.size) params.set('size', String(Number(args.size)));
+if (args.offset) params.set('offset', args.offset);
+if (args['min-distance']) params.set('minDistance', String(Number(args['min-distance'])));
+const query = params.toString() ? `?${params}` : '';
 await page.goto(`http://127.0.0.1:${port}/training/harness.html${query}`);
 await page.waitForFunction('window.harnessReady === true');
 

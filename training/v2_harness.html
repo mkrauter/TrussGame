@@ -15,7 +15,9 @@ import { TrussV2Model } from '../web/src/tflite.js';
 
 const canvas = document.getElementById('scene');
 const ctx = canvas.getContext('2d', { willReadFrequently: true });
-const model = await TrussV2Model.load('../web/src/model/trussv2.json');
+// ?model=... so the candidate models can be scored on identical trusses.
+const which = new URLSearchParams(location.search).get('model') || 'trussv2';
+const model = await TrussV2Model.load(`../web/src/model/${which}.json`);
 
 const TRUSS_OPTIONS = { offset: [100, 150], minDistance: 100 };
 // Matches web/src/v2game.js: v3's thickness, not pygame's 1px aaline.

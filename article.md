@@ -70,11 +70,13 @@ correct answers. Standard stuff. It trained in about ten minutes on a free
 cloud GPU.
 
 That was 2021, and the whole thing took a few weeks of evenings. It scored
-around 60%, and I was delighted. It seemed to have picked up something real
+around 62%, and I was delighted. It seemed to have picked up something real
 about mechanics just by staring at pictures.
 
-Then life happened, and the project went quietly to sleep for the next several
-years.
+I kept at it for a while — more layers, fewer layers, more data, longer
+training. The results were occasionally good and mostly mediocre, and none of
+them was clearly better than the first. Then life happened, and the project went
+quietly to sleep for the next several years.
 
 ## The question I forgot to ask
 
@@ -88,16 +90,17 @@ move. One line of arithmetic, no learning, no understanding.
 
 **That scores 59.5%.**
 
-My network scored 60.5%.
+My best network scored 61.7%.
 
-The thing I had been quietly proud of for years was worth one percentage point
-over a rule you could write on a napkin.
+Two points. The thing I had been quietly proud of for years was worth two
+percentage points over a rule you could write on a napkin — and I trained a
+good many networks to get there.
 
 Worse, when you pull the model apart, that is precisely what it was doing. It
 located the loaded joint in the image almost perfectly — it was excellent at
 *seeing*. But its guess about how far the joint would move was, measurably, worse
-than just always guessing the average. It shifted the joint by about 135 pixels
-when the truth averaged 155, no matter what the structure looked like.
+than just always guessing the average. It shifted the joint by about 138 pixels
+when the truth averaged 156, no matter what the structure looked like.
 
 It had never learned mechanics at all. It had learned to find the blue dot and
 nudge it downward. And because the scoring rule is generous to anyone who knows
