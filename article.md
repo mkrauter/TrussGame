@@ -275,8 +275,13 @@ six.](images/difficulty.png)
 
 One dial, from novice to expert, and it is not a handicap bolted on afterwards.
 It is literally how long the opponent considers the problem before answering.
-Six rounds is someone eyeballing it; ten is someone doing the sums. Since human
-players sit around 70–80%, seven or so makes for a properly close game.
+Six rounds is someone eyeballing it; ten is someone doing the sums.
+
+That is exactly what the difficulty setting in the game changes. **Easy**,
+**Medium**, **Hard** and **Expert** are four, six, eight and ten rounds of
+thinking — no noise added, no deliberate mistakes, just an opponent given less
+time to work it out. Medium is the default, because human players sit around
+70–80% and six rounds makes for a properly close game.
 
 ## What I actually learned
 

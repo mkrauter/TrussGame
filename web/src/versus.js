@@ -41,9 +41,23 @@ const [detector, gnn] = await Promise.all([
 ]);
 
 // Fewer message-passing rounds is a less-converged solver, so difficulty is a
-// physically meaningful dial rather than injected noise.
-const LEVELS = [1, 2, 3, 4, 6, 8, 10];
-let levelIndex = LEVELS.length - 1;
+// physically meaningful dial rather than injected noise: the opponent is not
+// handicapped, it has simply thought about the structure for less time.
+//
+// The scores are measured, not guessed -- `node training/eval_pixel_pipeline.mjs
+// --rounds N` over the validation seeds. Human players sit around 70-80%, which
+// is why Medium is the default: it is the level that makes a real contest.
+const LEVELS = [
+  { name: 'Easy', rounds: 4, score: 46 },
+  { name: 'Medium', rounds: 6, score: 68 },
+  { name: 'Hard', rounds: 8, score: 86 },
+  { name: 'Expert', rounds: 10, score: 96 },
+];
+let levelIndex = 1;
+
+// Filled in while drawing the HUD so a click can be tested against the labels;
+// the canvas takes every click, so the board has to know what is not a guess.
+let levelHitboxes = [];
 
 let truss = new Truss();
 let perceived = null;
@@ -69,7 +83,9 @@ function think() {
     const seen = readTruss(detector, view);
     const ok = seen.loadedNode >= 0 && seen.supports.length === 2;
     perceived = seen;
-    prediction = ok ? predictClick(gnn, seen, { sigma: 0, rounds: LEVELS[levelIndex] }) : null;
+    prediction = ok
+      ? predictClick(gnn, seen, { sigma: 0, rounds: LEVELS[levelIndex].rounds })
+      : null;
     if (prediction && !(Number.isFinite(prediction[0]) && Number.isFinite(prediction[1]))) {
       prediction = null;
     }
@@ -89,12 +105,25 @@ function nextTruss() {
 think();
 
 canvas.addEventListener('click', (event) => {
-  if (thinking) return;             // do not let a click land mid-think
   const rect = canvas.getBoundingClientRect();
   const point = [
     ((event.clientX - rect.left) / rect.width) * WINDOW.width,
     ((event.clientY - rect.top) / rect.height) * WINDOW.height,
   ];
+
+  // The difficulty labels live on the same canvas as the board, so they get
+  // first refusal on a click. Without this, choosing a level would also be
+  // read as a guess at the bottom of the screen.
+  const picked = levelHitboxes.findIndex(
+    (b) => point[0] >= b.x && point[0] <= b.x + b.width &&
+           point[1] >= b.y && point[1] <= b.y + b.height
+  );
+  if (picked >= 0) {
+    setLevel(picked);
+    return;
+  }
+
+  if (thinking) return;             // do not let a click land mid-think
 
   if (guess === null) {
     guess = point;
@@ -120,17 +149,29 @@ canvas.addEventListener('click', (event) => {
   nextTruss();
 });
 
+function setLevel(index) {
+  if (index === levelIndex) return;
+  levelIndex = index;
+  // Only re-think while the round is still open; changing the AI's strength
+  // after it has committed would be rewriting an answer it already gave. Mid
+  // round the choice simply applies from the next truss.
+  if (guess === null && !thinking) think();
+}
+
 window.addEventListener('keydown', (event) => {
   if (event.key === 'v' || event.key === 'V') {
     showVision = !showVision;
     return;
   }
+  // 1-4 pick a level directly; the brackets still step through them.
+  const digit = Number(event.key);
+  if (digit >= 1 && digit <= LEVELS.length) {
+    setLevel(digit - 1);
+    return;
+  }
   const step = event.key === ']' ? 1 : event.key === '[' ? -1 : 0;
   if (step === 0) return;
-  levelIndex = Math.min(LEVELS.length - 1, Math.max(0, levelIndex + step));
-  // Only re-think while the round is still open; changing the AI's strength
-  // after it has committed would be rewriting its answer.
-  if (guess === null && !thinking) think();
+  setLevel(Math.min(LEVELS.length - 1, Math.max(0, levelIndex + step)));
 });
 
 // What the AI actually saw: the nodes it found and the members it read. Worth
@@ -240,15 +281,59 @@ function drawHud() {
   ctx.fillStyle = HUD.hintColor;
   ctx.fillText(SCORING_HINT, WINDOW.width / 2, HUD.hintBaseline);
 
-  // On the prompt's line, not the hint's: the hint is centred and full width,
-  // so a left-aligned line beneath it collides with its first characters.
+  drawLevels();
+
+  // Right-aligned so it balances the level picker and clears the centred
+  // prompt between them.
+  ctx.font = HUD.hintFont;
+  ctx.fillStyle = HUD.hintColor;
+  ctx.textAlign = 'right';
+  ctx.fillText('V  see what the AI saw', WINDOW.width - HUD.margin, HUD.bottomBaseline);
+}
+
+// The difficulty picker: four names on the prompt's line, the active one lit.
+// Drawing it here rather than as HTML keeps the whole game one element, which
+// is what lets the page scale to any window without a layout.
+function drawLevels() {
+  const y = HUD.bottomBaseline;
+  levelHitboxes = [];
+
   ctx.textAlign = 'left';
-  ctx.fillText(
-    `AI: ${LEVELS[levelIndex]} round${LEVELS[levelIndex] === 1 ? '' : 's'}` +
-    `   [/] strength   V vision`,
-    HUD.margin,
-    HUD.bottomBaseline
-  );
+  ctx.textBaseline = 'alphabetic';
+
+  // Names only on this line. The centred prompt starts around x=277, and
+  // anything more here runs straight into it.
+  let x = HUD.margin;
+  LEVELS.forEach((level, i) => {
+    const active = i === levelIndex;
+    ctx.font = active ? `600 ${HUD.hintFont}` : HUD.hintFont;
+    const width = ctx.measureText(level.name).width;
+
+    if (active) {
+      // A quiet underline rather than a button: this sits in the margin and
+      // should not compete with the board for attention.
+      ctx.fillStyle = HUD.color;
+      ctx.fillText(level.name, x, y);
+      ctx.fillRect(x, y + 4, width, 1.5);
+    } else {
+      ctx.fillStyle = HUD.hintColor;
+      ctx.fillText(level.name, x, y);
+    }
+
+    // Padded well past the glyphs: these are click targets, and the canvas is
+    // scaled down by CSS on smaller screens, so a box that feels generous here
+    // is only two thirds the size on a 600px window.
+    levelHitboxes.push({ x: x - 9, y: y - 19, width: width + 18, height: 31 });
+    x += width + 18;
+  });
+
+  // What the chosen level actually scores, on the line below where there is
+  // room. Measured, so it doubles as a statement about the opponent rather
+  // than a difficulty label invented to feel fair.
+  ctx.font = HUD.hintFont;
+  ctx.fillStyle = HUD.hintColor;
+  ctx.fillText(`${LEVELS[levelIndex].name} scores ${LEVELS[levelIndex].score}%`,
+               HUD.margin, HUD.hintBaseline);
 }
 
 function frame() {
