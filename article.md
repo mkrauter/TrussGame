@@ -102,10 +102,6 @@ The best surviving network scores 61.7%.
 Two points. Years of intermittent effort, and the thing I had been quietly proud
 of was worth two percentage points over a rule you could write on a napkin.
 
-The one that had actually been sitting in the repository all that time is worse
-still. Measured on the renderer it was trained against, it scores **58.0%** —
-which is to say it loses to the napkin.
-
 Worse, when you pull the model apart, that is precisely what it was doing. It
 located the loaded joint in the image almost perfectly — it was excellent at
 *seeing*. But its guess about how far the joint would move was, measurably, worse

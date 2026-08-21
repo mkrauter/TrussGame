@@ -95,11 +95,9 @@ its movement you predicted, not a distance in pixels.
 | **v3**, the current model | **96.3%** | **97.3%** |
 | a perfect solver, reading the screen as well as v3 does | ~98% | — |
 
-**v2 beats a one-line heuristic by two points**, and the model that had been
-sitting in this repository until 2026 does not beat it at all — measured on the
-pygame renderer it was trained against, that one scores 58.0%. The 61.7% above
-is `retrained_250`, recovered from the Recycle Bin; better models were trained in
-2023 and did not survive. Decomposing it explains why: it locates
+**v2 beats a one-line heuristic by two points.** The 61.7% above is
+`retrained_250`, the best of several networks trained in 2023 and the only one
+still readable; the others did not survive. Decomposing it explains why: it locates
 the loaded node almost perfectly from pixels alone — 0.97 correlation with the
 true position — but its displacement prediction scores a negative R² against
 simply always guessing the mean. It moves the node 138px where the truth

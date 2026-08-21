@@ -246,7 +246,7 @@
 <article>
 <h1>Can a machine learn engineering intuition?</h1>
 <p class="standfirst">I built a small game about how structures bend, then spent a few weeks teaching a computer to play it. It fooled me completely, and then sat on a shelf for years before I found out why. What finally worked had nothing to do with a bigger model — and quite a lot to do with admitting I had picked the wrong kind of machine.</p>
-<p class="byline">By <b>Márton Krauter</b> · 13 min read</p>
+<p class="byline">By <b>Márton Krauter</b> · 12 min read</p>
 
 <p>Here is a puzzle. Ten steel joints, scattered at random and wired together into
 triangles. The two outermost joints are bolted to the ground. Now hang a weight
@@ -314,9 +314,6 @@ move. One line of arithmetic, no learning, no understanding.</p>
 <p>The best surviving network scores 61.7%.</p>
 <p>Two points. Years of intermittent effort, and the thing I had been quietly proud
 of was worth two percentage points over a rule you could write on a napkin.</p>
-<p>The one that had actually been sitting in the repository all that time is worse
-still. Measured on the renderer it was trained against, it scores <strong>58.0%</strong> —
-which is to say it loses to the napkin.</p>
 <p>Worse, when you pull the model apart, that is precisely what it was doing. It
 located the loaded joint in the image almost perfectly — it was excellent at
 <em>seeing</em>. But its guess about how far the joint would move was, measurably, worse

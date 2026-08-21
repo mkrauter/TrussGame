@@ -11,9 +11,9 @@
 //
 // This is retrained_250, recovered from the Recycle Bin: the best surviving
 // model of several trained in 2023, written by TensorFlow 2.9 in September of
-// that year. It beats the one that had been sitting in the repository by
-// 1.41 points, 95% CI [+0.58, +2.26] -- real, but it took 2400 trusses to
-// resolve, and at 600 the difference was indistinguishable from noise.
+// that year. It was chosen over the other readable candidate by measurement:
+// +1.41 points, 95% CI [+0.58, +2.26] over 2400 trusses. Real, but it took that
+// many to resolve -- at 600 the difference was indistinguishable from noise.
 //
 // It was trained on pygame's hairlines and this page draws v3's thicker
 // members. Measured either way the difference is a point or so, which 150
