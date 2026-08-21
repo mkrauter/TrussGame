@@ -4,13 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Can a machine learn engineering intuition?</title>
-<meta name="description" content="I built a small game about how structures bend, then spent a few weeks teaching a computer to play it. It fooled me completely, and then sat on a shelf for years before I found out">
+<meta name="description" content="I built a small game about how structures bend, then spent a month of evenings teaching a computer to play it. It fooled me completely, and I did not find out why until I picked it">
 
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%23404040'/><polygon points='16,26 6,8 26,8' fill='%236c6cd2'/></svg>">
 
 <meta property="og:type" content="article">
 <meta property="og:title" content="Can a machine learn engineering intuition?">
-<meta property="og:description" content="I built a small game about how structures bend, then spent a few weeks teaching a computer to play it. It fooled me completely, and then sat on a shelf for years before I found out">
+<meta property="og:description" content="I built a small game about how structures bend, then spent a month of evenings teaching a computer to play it. It fooled me completely, and I did not find out why until I picked it">
 <meta property="og:image" content="https://mkrauter.github.io/TrussGame/images/screenshot.jpg">
 <meta property="og:url" content="https://mkrauter.github.io/TrussGame/web/article/">
 <meta name="twitter:card" content="summary_large_image">
@@ -245,7 +245,7 @@
 
 <article>
 <h1>Can a machine learn engineering intuition?</h1>
-<p class="standfirst">I built a small game about how structures bend, then spent a few weeks teaching a computer to play it. It fooled me completely, and then sat on a shelf for years before I found out why. What finally worked had nothing to do with a bigger model — and quite a lot to do with admitting I had picked the wrong kind of machine.</p>
+<p class="standfirst">I built a small game about how structures bend, then spent a month of evenings teaching a computer to play it. It fooled me completely, and I did not find out why until I picked it up again three years later. What finally worked had nothing to do with a bigger model — and quite a lot to do with admitting I had picked the wrong kind of machine.</p>
 <p class="byline">By <b>Márton Krauter</b> · 12 min read</p>
 
 <p>Here is a puzzle. Ten steel joints, scattered at random and wired together into
@@ -290,12 +290,13 @@ is this dog&rdquo; demo you have ever seen, and it is very good.</p>
 where the joint will end up — and show it a few thousand examples with the
 correct answers. Standard stuff. It trained in about ten minutes on a free
 cloud GPU.</p>
-<p>That was 2021, and the whole thing took a few weeks of evenings. It scored
-around 62%, and I was delighted. It seemed to have picked up something real
-about mechanics just by staring at pictures.</p>
-<p>I kept at it for a while — more layers, fewer layers, more data, longer
-training. The results were occasionally good and mostly mediocre. Then life
-happened, and the project went quietly to sleep for the next several years.</p>
+<p>That was 2023, and it took about a month of evenings. It scored around 62%, and
+I was delighted. It seemed to have picked up something real about mechanics just
+by staring at pictures.</p>
+<p>Within that month I tried a good many variations — more layers, fewer layers,
+more data, longer training. The results were occasionally good and mostly
+mediocre. Then the month ended, as hobby projects do, and this one sat untouched
+until I opened it again in 2026.</p>
 <p>Most of those networks are gone now. When I came back to this I went looking,
 and found three survivors in the Recycle Bin: one intact, two with their files
 quietly destroyed by having been read as text at some point years ago. So the
@@ -312,8 +313,8 @@ loaded joint, and move it straight down by the average distance that joints
 move. One line of arithmetic, no learning, no understanding.</p>
 <p><strong>That scores 59.5%.</strong></p>
 <p>The best surviving network scores 61.7%.</p>
-<p>Two points. Years of intermittent effort, and the thing I had been quietly proud
-of was worth two percentage points over a rule you could write on a napkin.</p>
+<p>Two points. A month of evenings, and the thing I had been quietly pleased with
+was worth two percentage points over a rule you could write on a napkin.</p>
 <p>Worse, when you pull the model apart, that is precisely what it was doing. It
 located the loaded joint in the image almost perfectly — it was excellent at
 <em>seeing</em>. But its guess about how far the joint would move was, measurably, worse
@@ -470,8 +471,8 @@ time to work it out. Medium is the default, because human players sit around
 <h2>What I actually learned</h2>
 <p><strong>Check what &ldquo;doing nothing clever&rdquo; scores, before you believe anything.</strong> The
 napkin rule matched the model I was proud of. Ten minutes on the first afternoon
-would have saved me years of believing something that was not true — not years of
-work, but years of a comfortable illusion nobody had any reason to poke at.</p>
+would have told me. Instead the belief simply sat there, undisturbed, because
+nobody including me had any reason to poke at it.</p>
 <p><strong>Match the tool to the shape of the problem, not the shape of the data.</strong> My
 data arrived as pictures, so I reached for the picture tool. But the problem was
 never really about pictures — it was about everything depending on everything —
@@ -496,8 +497,8 @@ field made things worse — it is all in
 you can run for free. It builds the training data and trains the model to 96% in
 about six minutes, so you can watch it happen rather than take my word for it.</p>
 <p>And if you can close the gap between 96.3% and the 98% that eyesight allows, or
-get there with fewer parameters — please tell me. Preferably before another five
-years go by.</p>
+get there with fewer parameters — please tell me. I would rather not wait for
+the next time this project comes round.</p>
 </article>
 
 <footer>

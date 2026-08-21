@@ -5,11 +5,11 @@ heroAlt: A man and a small robot sit at the same desk, both pointing at differen
 
 # Can a machine learn engineering intuition?
 
-*I built a small game about how structures bend, then spent a few weeks
-teaching a computer to play it. It fooled me completely, and then sat on a shelf
-for years before I found out why. What finally worked had nothing to do with a
-bigger model — and quite a lot to do with admitting I had picked the wrong kind
-of machine.*
+*I built a small game about how structures bend, then spent a month of evenings
+teaching a computer to play it. It fooled me completely, and I did not find out
+why until I picked it up again three years later. What finally worked had
+nothing to do with a bigger model — and quite a lot to do with admitting I had
+picked the wrong kind of machine.*
 
 ---
 
@@ -69,13 +69,14 @@ where the joint will end up — and show it a few thousand examples with the
 correct answers. Standard stuff. It trained in about ten minutes on a free
 cloud GPU.
 
-That was 2021, and the whole thing took a few weeks of evenings. It scored
-around 62%, and I was delighted. It seemed to have picked up something real
-about mechanics just by staring at pictures.
+That was 2023, and it took about a month of evenings. It scored around 62%, and
+I was delighted. It seemed to have picked up something real about mechanics just
+by staring at pictures.
 
-I kept at it for a while — more layers, fewer layers, more data, longer
-training. The results were occasionally good and mostly mediocre. Then life
-happened, and the project went quietly to sleep for the next several years.
+Within that month I tried a good many variations — more layers, fewer layers,
+more data, longer training. The results were occasionally good and mostly
+mediocre. Then the month ended, as hobby projects do, and this one sat untouched
+until I opened it again in 2026.
 
 Most of those networks are gone now. When I came back to this I went looking,
 and found three survivors in the Recycle Bin: one intact, two with their files
@@ -99,8 +100,8 @@ move. One line of arithmetic, no learning, no understanding.
 
 The best surviving network scores 61.7%.
 
-Two points. Years of intermittent effort, and the thing I had been quietly proud
-of was worth two percentage points over a rule you could write on a napkin.
+Two points. A month of evenings, and the thing I had been quietly pleased with
+was worth two percentage points over a rule you could write on a napkin.
 
 Worse, when you pull the model apart, that is precisely what it was doing. It
 located the loaded joint in the image almost perfectly — it was excellent at
@@ -303,8 +304,8 @@ time to work it out. Medium is the default, because human players sit around
 
 **Check what "doing nothing clever" scores, before you believe anything.** The
 napkin rule matched the model I was proud of. Ten minutes on the first afternoon
-would have saved me years of believing something that was not true — not years of
-work, but years of a comfortable illusion nobody had any reason to poke at.
+would have told me. Instead the belief simply sat there, undisturbed, because
+nobody including me had any reason to poke at it.
 
 **Match the tool to the shape of the problem, not the shape of the data.** My
 data arrived as pictures, so I reached for the picture tool. But the problem was
@@ -336,5 +337,5 @@ you can run for free. It builds the training data and trains the model to 96% in
 about six minutes, so you can watch it happen rather than take my word for it.
 
 And if you can close the gap between 96.3% and the 98% that eyesight allows, or
-get there with fewer parameters — please tell me. Preferably before another five
-years go by.
+get there with fewer parameters — please tell me. I would rather not wait for
+the next time this project comes round.
