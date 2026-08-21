@@ -12,19 +12,37 @@ import { PHYSICS } from '../web/src/config.js';
 import { drawScene } from '../web/src/renderer.js';
 import { TrussDetector, readTruss, findMembers } from '../web/src/detect.js';
 import { TrussGNN } from '../web/src/gnn.js';
+import { triangulate, edgesOf } from '../web/src/delaunay.js';
 import { predictClick } from '../web/src/ai.js';
 
 const canvas = document.getElementById('scene');
 const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
-const detector = await TrussDetector.load('../web/src/model/trussdetector.json');
-const gnn = await TrussGNN.load('../web/src/model/trussgnn.json');
+// ?nodes= and ?force= let the same pipeline be scored on a thinner truss.
+// Six nodes has far fewer load paths, so displacement depends much more on
+// geometry -- the constant-guess baseline falls from 60% to 48% there.
+const params = new URLSearchParams(location.search);
+const NUM_NODES = Number(params.get('nodes') || 0) || undefined;
+const FORCE = PHYSICS.force * Number(params.get('force') || 1);
+const OPTS = NUM_NODES ? { numNodes: NUM_NODES } : {};
+const detector = await TrussDetector.load(
+  params.get('detector') || '../web/src/model/trussdetector.json');
+const gnn = await TrussGNN.load(params.get('gnn') || '../web/src/model/trussgnn.json');
+// The decode takes a fixed number of peaks per class -- [7, 2, 1] for the
+// ten-node game. Two supports and one loaded node hold at any size; only the
+// plain-node count tracks numNodes. ?counts= overrides it so a thinner truss
+// can be scored without retraining the detector.
+if (params.get('counts')) {
+  detector.counts = params.get('counts').split(',').map(Number);
+} else if (NUM_NODES) {
+  detector.counts = [NUM_NODES - 3, 2, 1];
+}
 
 window.evaluateRange = function (start, count, seedBase, rounds) {
   const results = [];
   for (let i = 0; i < count; i++) {
     const seed = seedBase + start + i;
-    const truth = new Truss(mulberry32(seed));
+    const truth = new Truss(mulberry32(seed), OPTS);
 
     // The undeformed frame -- exactly what the player is looking at when they
     // commit to a guess, and the only thing the AI receives.
@@ -46,7 +64,7 @@ window.evaluateRange = function (start, count, seedBase, rounds) {
       }
     }
 
-    truth.calculate(PHYSICS.force);
+    truth.calculate(FORCE);
     if (ok) score = accuracy(truth.loadedStart, truth.loadedEnd, click);
 
     // How far the detector put each true node, after nearest-pair matching.
@@ -76,7 +94,7 @@ window.evaluateRange = function (start, count, seedBase, rounds) {
 window.sweepMembers = function (start, count, seedBase, configs) {
   const totals = configs.map(() => ({ perfect: 0, missed: 0, spurious: 0 }));
   for (let i = 0; i < count; i++) {
-    const truth = new Truss(mulberry32(seedBase + start + i));
+    const truth = new Truss(mulberry32(seedBase + start + i), OPTS);
     drawScene(ctx, truth);
     const found = detector.findNodes(canvas);
     const points = found.map((n) => n.position);
@@ -114,8 +132,52 @@ window.sweepMembers = function (start, count, seedBase, configs) {
 // Dump what the browser computes for one truss, so verify_detector.py can hold
 // it against PyTorch. Covers the whole chain the game depends on: the capture
 // crop and downscale, the convolution runtime, and the peak decode.
+// How well would members be recovered by triangulating the DETECTED nodes,
+// rather than reading them from pixels? That assumes the generator builds a
+// Delaunay truss -- prior knowledge about the game, not extra input from the
+// screen -- so it is a design choice, not a free win. This measures the size
+// of the prize before anyone decides whether to take it.
+window.countNodes = function (start, count, seedBase) {
+  const hist = {};
+  let sum = 0;
+  for (let i = 0; i < count; i++) {
+    const truth = new Truss(mulberry32(seedBase + start + i), OPTS);
+    drawScene(ctx, truth);
+    const found = detector.findNodes(canvas).length;
+    hist[found] = (hist[found] || 0) + 1;
+    sum += found;
+  }
+  return { hist, mean: sum / count };
+};
+
+window.compareMemberSources = function (start, count, seedBase) {
+  const t = { pixelPerfect: 0, delaunayPerfect: 0, n: 0 };
+  for (let i = 0; i < count; i++) {
+    const truth = new Truss(mulberry32(seedBase + start + i), OPTS);
+    drawScene(ctx, truth);
+    const points = detector.findNodes(canvas).map((n) => n.position);
+    const map = points.map((p) => {
+      let best = -1, bestD = Infinity;
+      truth.nodes.forEach((q, k) => {
+        const d = Math.hypot(p[0] - q[0], p[1] - q[1]);
+        if (d < bestD) { bestD = d; best = k; }
+      });
+      return best;
+    });
+    const key = (a, b) => [a, b].sort((x, y) => x - y).join(',');
+    const want = new Set(truth.elements.map(([a, b]) => key(a, b)));
+    const same = (got) => got.size === want.size && [...got].every((e) => want.has(e));
+    const pix = new Set(findMembers(canvas, points).map(([a, b]) => key(map[a], map[b])));
+    const del = new Set(edgesOf(triangulate(points)).map(([a, b]) => key(map[a], map[b])));
+    if (same(pix)) t.pixelPerfect++;
+    if (same(del)) t.delaunayPerfect++;
+    t.n++;
+  }
+  return t;
+};
+
 window.dumpDetection = function (seed) {
-  const truss = new Truss(mulberry32(seed));
+  const truss = new Truss(mulberry32(seed), OPTS);
   drawScene(ctx, truss);
   const input = detector._input(canvas);
   const nodes = detector.findNodes(canvas);

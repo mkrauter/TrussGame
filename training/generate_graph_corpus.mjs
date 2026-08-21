@@ -38,6 +38,13 @@ const SPLIT = args.split ?? 'train';
 const COUNT = Number(args.count ?? 64);
 const SEED_BASE = Number(args['seed-base'] ?? (SPLIT === 'val' ? 1_000_000 : 0));
 const OUT = path.resolve(args.out ?? path.join(HERE, 'graph_corpus'), SPLIT);
+// A thinner truss has far fewer load paths, so displacement depends much more
+// on geometry: the constant-guess baseline falls from 60% to 48% at six nodes.
+// The load is scaled with it to keep settled joints inside the 768px crop --
+// at full force six nodes puts 5.9% of them off-canvas against ten nodes' 1.0%.
+const NUM_NODES = Number(args.nodes ?? 0) || undefined;
+const OPTS = NUM_NODES ? { numNodes: NUM_NODES } : {};
+const FORCE = PHYSICS.force * Number(args.force ?? 1);
 
 const t0 = Date.now();
 await fsp.mkdir(OUT, { recursive: true });
@@ -45,8 +52,8 @@ await fsp.mkdir(OUT, { recursive: true });
 const samples = [];
 for (let i = 0; i < COUNT; i++) {
   const seed = SEED_BASE + i;
-  const truss = new Truss(mulberry32(seed));
-  truss.calculate(PHYSICS.force);
+  const truss = new Truss(mulberry32(seed), OPTS);
+  truss.calculate(FORCE);
 
   // The full displacement field, not just the loaded node. The solve produces
   // it anyway, and it is 8 free nodes' worth of supervision per sample instead
@@ -75,7 +82,8 @@ const meta = {
   count: COUNT,
   seedBase: SEED_BASE,
   generatedAt: new Date().toISOString(),
-  physics: { ...PHYSICS },
+  physics: { ...PHYSICS, force: FORCE },
+  numNodes: NUM_NODES ?? 10,
   note: 'exact linear-static solve; displacement is the full field, screen pixels',
 };
 const file = path.join(OUT, 'graphs.json');

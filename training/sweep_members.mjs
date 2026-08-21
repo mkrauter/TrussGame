@@ -48,7 +48,10 @@ await new Promise((r) => server.listen(0, '127.0.0.1', r));
 const browser = await chromium.launch();
 const page = await browser.newPage({ deviceScaleFactor: 1 });
 page.on('pageerror', (e) => { throw e; });
-await page.goto(`http://127.0.0.1:${server.address().port}/training/pixel_harness.html`);
+const query = ['nodes', 'force'].filter((k) => args[k] !== undefined)
+  .map((k) => `${k}=${encodeURIComponent(args[k])}`).join('&');
+await page.goto(`http://127.0.0.1:${server.address().port}`
+  + `/training/pixel_harness.html${query ? `?${query}` : ''}`);
 await page.waitForFunction('window.harnessReady === true');
 
 const totals = configs.map(() => ({ perfect: 0, missed: 0, spurious: 0 }));

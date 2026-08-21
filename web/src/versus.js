@@ -35,10 +35,34 @@ view.width = WINDOW.width;
 view.height = WINDOW.height;
 const viewCtx = view.getContext('2d', { willReadFrequently: true });
 
+// The page declares which variant it is, so the URL stays clean and the
+// choice is visible in the markup rather than buried in a query string.
+//
+// Six nodes is not merely a smaller board. With far fewer load paths the
+// settled displacement depends much more on the geometry, so guessing the
+// average -- which scores 60% at ten nodes, about what an experienced human
+// scores -- collapses to 48%. That is twelve points of headroom that ten nodes
+// simply does not have, and it is the difference between a game where reading
+// the structure pays and one where knowing a constant is most of the skill.
+const NODES = Number(document.body.dataset.nodes || 10);
+const TRUSS_OPTIONS = NODES === 10 ? {} : { numNodes: NODES };
+// Displacement grows as the truss thins. At full load six nodes puts 5.9% of
+// settled joints outside the model's crop against ten nodes' 1.0%, so the load
+// is scaled to match. The score is a ratio of miss to travel, so this leaves
+// both the baseline and every measured accuracy untouched.
+const FORCE = PHYSICS.force * (NODES === 10 ? 1 : 0.6);
+
 const [detector, gnn] = await Promise.all([
   TrussDetector.load(new URL('./model/trussdetector.json', import.meta.url)),
-  TrussGNN.load(new URL('./model/trussgnn.json', import.meta.url)),
+  TrussGNN.load(new URL(NODES === 10 ? './model/trussgnn.json' : './model/trussgnn6.json',
+                        import.meta.url)),
 ]);
+
+// The decode takes a fixed number of peaks per class. Two supports and one
+// loaded node hold at any size; only the plain-node count tracks the board.
+// Leaving this at its ten-node value is what made the detector invent four
+// phantom joints on a six-node truss and drop the pipeline to 19%.
+detector.counts = [NODES - 3, 2, 1];
 
 // Fewer message-passing rounds is a less-converged solver, so difficulty is a
 // physically meaningful dial rather than injected noise: the opponent is not
@@ -47,19 +71,32 @@ const [detector, gnn] = await Promise.all([
 // The scores are measured, not guessed -- `node training/eval_pixel_pipeline.mjs
 // --rounds N` over the validation seeds. Human players sit around 70-80%, which
 // is why Medium is the default: it is the level that makes a real contest.
-const LEVELS = [
-  { name: 'Easy', rounds: 4, score: 46 },
-  { name: 'Medium', rounds: 6, score: 68 },
-  { name: 'Hard', rounds: 8, score: 86 },
-  { name: 'Expert', rounds: 10, score: 96 },
-];
+// The six-node curve is steeper -- 4 rounds collapses to 12% there, too weak
+// to be anyone's Easy -- so each board carries its own measured ladder. Note
+// that six-node Easy lands on 47%, within a point of that board's 48% baseline:
+// the gentlest setting plays about as well as guessing the average.
+const LADDERS = {
+  10: [
+    { name: 'Easy', rounds: 4, score: 46 },
+    { name: 'Medium', rounds: 6, score: 68 },
+    { name: 'Hard', rounds: 8, score: 86 },
+    { name: 'Expert', rounds: 10, score: 96 },
+  ],
+  6: [
+    { name: 'Easy', rounds: 6, score: 47 },
+    { name: 'Medium', rounds: 7, score: 61 },
+    { name: 'Hard', rounds: 8, score: 73 },
+    { name: 'Expert', rounds: 10, score: 93 },
+  ],
+};
+const LEVELS = LADDERS[NODES] ?? LADDERS[10];
 let levelIndex = 1;
 
 // Filled in while drawing the HUD so a click can be tested against the labels;
 // the canvas takes every click, so the board has to know what is not a guess.
 let levelHitboxes = [];
 
-let truss = new Truss();
+let truss = new Truss(Math.random, TRUSS_OPTIONS);
 let perceived = null;
 let prediction = null;
 let thinking = false;
@@ -94,7 +131,7 @@ function think() {
 }
 
 function nextTruss() {
-  truss = new Truss();
+  truss = new Truss(Math.random, TRUSS_OPTIONS);
   guess = null;
   prediction = null;
   perceived = null;
@@ -133,7 +170,7 @@ canvas.addEventListener('click', (event) => {
 
   // Score against the settled state at exactly `force`, never the animating
   // frame -- clicking early would otherwise be scored against an overshoot.
-  truss.calculate(PHYSICS.force);
+  truss.calculate(FORCE);
   const user = accuracy(truss.loadedStart, truss.loadedEnd, guess);
   const ai = prediction ? accuracy(truss.loadedStart, truss.loadedEnd, prediction) : 0;
 
@@ -339,7 +376,7 @@ function drawLevels() {
 function frame() {
   if (guess !== null) {
     if (time < ANIMATION.settleTime) {
-      truss.calculate(PHYSICS.force * ANIMATION.ramp(time));
+      truss.calculate(FORCE * ANIMATION.ramp(time));
       time += 1;
     }
     shown = {

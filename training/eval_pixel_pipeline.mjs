@@ -43,7 +43,14 @@ const port = server.address().port;
 const browser = await chromium.launch();
 const page = await browser.newPage({ deviceScaleFactor: 1 });
 page.on('pageerror', (e) => { throw e; });
-await page.goto(`http://127.0.0.1:${port}/training/pixel_harness.html`);
+// Anything not recognised here is ignored by the harness, so --nodes/--force
+// and swapped model paths all travel the same way.
+const query = ['nodes', 'force', 'detector', 'gnn']
+  .filter((k) => args[k] !== undefined)
+  .map((k) => `${k}=${encodeURIComponent(args[k])}`)
+  .join('&');
+await page.goto(
+  `http://127.0.0.1:${port}/training/pixel_harness.html${query ? `?${query}` : ''}`);
 await page.waitForFunction('window.harnessReady === true');
 
 const rows = [];
