@@ -33,6 +33,7 @@ FORCE = 100000
 MODELS = {
     'the 2023 model in the repo': ROOT / 'truss_game_AI_model.tflite',
     'retrained_250 (recovered)': ROOT / 'training' / 'recovered' / 'retrained_250.tflite',
+    'retrained_200 (rebuilt)': ROOT / 'training' / 'recovered' / 'retrained_200.tflite',
 }
 
 
@@ -103,15 +104,16 @@ def main(count=1200):
     print(f'  {"(the truth)":<28} {"":>23}   '
           f'moves {np.linalg.norm(end - start, axis=-1).mean():5.1f}px')
 
-    a, b = list(scores.values())
-    difference = b - a
     rng = np.random.default_rng(0)
-    boot = np.array([rng.choice(difference, difference.size, replace=True).mean()
-                     for _ in range(10000)])
-    low, high = np.percentile(boot, [2.5, 97.5])
-    print(f'\n  retrained_250 advantage: {difference.mean():+.2f} points   '
-          f'95% CI [{low:+.2f}, {high:+.2f}]')
-    print(f'  baseline for reference: 59.5%')
+    reference = list(scores)[0]
+    for name in list(scores)[1:]:
+        difference = scores[name] - scores[reference]
+        boot = np.array([rng.choice(difference, difference.size, replace=True).mean()
+                         for _ in range(10000)])
+        low, high = np.percentile(boot, [2.5, 97.5])
+        print(f'\n  {name} over {reference}: {difference.mean():+.2f} points   '
+              f'95% CI [{low:+.2f}, {high:+.2f}]')
+    print('\n  baseline for reference: 59.5%')
 
 
 if __name__ == '__main__':
