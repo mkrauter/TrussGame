@@ -74,9 +74,16 @@ around 62%, and I was delighted. It seemed to have picked up something real
 about mechanics just by staring at pictures.
 
 I kept at it for a while — more layers, fewer layers, more data, longer
-training. The results were occasionally good and mostly mediocre, and none of
-them was clearly better than the first. Then life happened, and the project went
-quietly to sleep for the next several years.
+training. The results were occasionally good and mostly mediocre. Then life
+happened, and the project went quietly to sleep for the next several years.
+
+Most of those networks are gone now. When I came back to this I went looking,
+and found three survivors in the Recycle Bin: one intact, two with their files
+quietly destroyed by having been read as text at some point years ago. So the
+best model I can still put in front of you is not necessarily the best one I
+trained. I remember better. I have only my word for that, which is worth about
+what anyone's word for an unreproducible result is worth — which is to say, this
+is the number that survived.
 
 ## The question I forgot to ask
 
@@ -90,11 +97,14 @@ move. One line of arithmetic, no learning, no understanding.
 
 **That scores 59.5%.**
 
-My best network scored 61.7%.
+The best surviving network scores 61.7%.
 
-Two points. The thing I had been quietly proud of for years was worth two
-percentage points over a rule you could write on a napkin — and I trained a
-good many networks to get there.
+Two points. Years of intermittent effort, and the thing I had been quietly proud
+of was worth two percentage points over a rule you could write on a napkin.
+
+The one that had actually been sitting in the repository all that time is worse
+still. Measured on the renderer it was trained against, it scores **58.0%** —
+which is to say it loses to the napkin.
 
 Worse, when you pull the model apart, that is precisely what it was doing. It
 located the loaded joint in the image almost perfectly — it was excellent at

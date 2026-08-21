@@ -246,7 +246,7 @@
 <article>
 <h1>Can a machine learn engineering intuition?</h1>
 <p class="standfirst">I built a small game about how structures bend, then spent a few weeks teaching a computer to play it. It fooled me completely, and then sat on a shelf for years before I found out why. What finally worked had nothing to do with a bigger model — and quite a lot to do with admitting I had picked the wrong kind of machine.</p>
-<p class="byline">By <b>Márton Krauter</b> · 12 min read</p>
+<p class="byline">By <b>Márton Krauter</b> · 13 min read</p>
 
 <p>Here is a puzzle. Ten steel joints, scattered at random and wired together into
 triangles. The two outermost joints are bolted to the ground. Now hang a weight
@@ -294,9 +294,15 @@ cloud GPU.</p>
 around 62%, and I was delighted. It seemed to have picked up something real
 about mechanics just by staring at pictures.</p>
 <p>I kept at it for a while — more layers, fewer layers, more data, longer
-training. The results were occasionally good and mostly mediocre, and none of
-them was clearly better than the first. Then life happened, and the project went
-quietly to sleep for the next several years.</p>
+training. The results were occasionally good and mostly mediocre. Then life
+happened, and the project went quietly to sleep for the next several years.</p>
+<p>Most of those networks are gone now. When I came back to this I went looking,
+and found three survivors in the Recycle Bin: one intact, two with their files
+quietly destroyed by having been read as text at some point years ago. So the
+best model I can still put in front of you is not necessarily the best one I
+trained. I remember better. I have only my word for that, which is worth about
+what anyone&rsquo;s word for an unreproducible result is worth — which is to say, this
+is the number that survived.</p>
 <h2>The question I forgot to ask</h2>
 <p>When I finally dug the project out again, I started with the one thing I should
 have done on the first afternoon and never got around to: work out what the
@@ -305,10 +311,12 @@ have done on the first afternoon and never got around to: work out what the
 loaded joint, and move it straight down by the average distance that joints
 move. One line of arithmetic, no learning, no understanding.</p>
 <p><strong>That scores 59.5%.</strong></p>
-<p>My best network scored 61.7%.</p>
-<p>Two points. The thing I had been quietly proud of for years was worth two
-percentage points over a rule you could write on a napkin — and I trained a
-good many networks to get there.</p>
+<p>The best surviving network scores 61.7%.</p>
+<p>Two points. Years of intermittent effort, and the thing I had been quietly proud
+of was worth two percentage points over a rule you could write on a napkin.</p>
+<p>The one that had actually been sitting in the repository all that time is worse
+still. Measured on the renderer it was trained against, it scores <strong>58.0%</strong> —
+which is to say it loses to the napkin.</p>
 <p>Worse, when you pull the model apart, that is precisely what it was doing. It
 located the loaded joint in the image almost perfectly — it was excellent at
 <em>seeing</em>. But its guess about how far the joint would move was, measurably, worse
