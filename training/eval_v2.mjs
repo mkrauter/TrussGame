@@ -29,7 +29,7 @@ const page = await browser.newPage({ deviceScaleFactor: 1 });
 page.on('pageerror', (e) => { throw e; });
 const which = args.model ?? 'trussv2';
 await page.goto(
-  `http://127.0.0.1:${server.address().port}/training/v2_harness.html?model=${which}`);
+  `http://127.0.0.1:${server.address().port}/training/v2_harness.html?model=${which}${args.random ? '&random=1' : ''}`);
 await page.waitForFunction('window.harnessReady === true');
 
 const rows = [];

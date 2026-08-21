@@ -17,6 +17,7 @@ const canvas = document.getElementById('scene');
 const ctx = canvas.getContext('2d', { willReadFrequently: true });
 // ?model=... so the candidate models can be scored on identical trusses.
 const which = new URLSearchParams(location.search).get('model') || 'trussv2';
+const useRandom = new URLSearchParams(location.search).get('random') === '1';
 const model = await TrussV2Model.load(`../web/src/model/${which}.json`);
 
 const TRUSS_OPTIONS = { offset: [100, 150], minDistance: 100 };
@@ -27,7 +28,12 @@ window.evaluateRange = function (start, count, seedBase) {
   const rows = [];
   for (let i = 0; i < count; i++) {
     const seed = seedBase + start + i;
-    const truss = new Truss(mulberry32(seed), TRUSS_OPTIONS);
+    // ?random=1 uses Math.random, exactly as the game does. Sequential seeds
+    // are reproducible but they are also a specific, narrow sample of the
+    // generator's state space -- worth checking they are not a biased one.
+    const truss = useRandom
+      ? new Truss(Math.random, TRUSS_OPTIONS)
+      : new Truss(mulberry32(seed), TRUSS_OPTIONS);
     drawScene(ctx, truss, STYLE);
 
     const { data } = ctx.getImageData(CROP.x, CROP.y, CROP.width, CROP.height);
