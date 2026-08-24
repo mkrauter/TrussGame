@@ -20,7 +20,7 @@ from PIL import Image
 HERE = Path(__file__).resolve().parent
 CORPUS = HERE / 'corpus_v2geom' / 'val'
 MODELS = {
-    'the 2023 model in the repo': HERE.parent / 'truss_game_AI_model.tflite',
+    'the 2023 model in the repo': HERE.parent / 'truss_game_v2_model.tflite',
     'retrained_250 (recovered)': HERE / 'recovered' / 'retrained_250.tflite',
 }
 

@@ -113,7 +113,7 @@ def main():
     # measured through the browser after the markers were enlarged, so quoting
     # it beside these would compare two different input distributions -- the
     # exact mistake that cost v3 seventy points earlier.
-    shipped = HERE.parent / 'truss_game_AI_model.tflite'
+    shipped = HERE.parent / 'truss_game_v2_model.tflite'
     if shipped.exists():
         interpreter = tf.lite.Interpreter(model_path=str(shipped))
         interpreter.allocate_tensors()

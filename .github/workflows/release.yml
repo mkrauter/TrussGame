@@ -27,7 +27,7 @@ jobs:
       # 3.10 is not a default -- it is the version the pins require. numpy is
       # held at 1.24.1 for truss_game_original.py and publishes no Windows wheel
       # above cp311, and the whole point of the exact pins is that the renderer
-      # must keep producing the pixels truss_game_AI_model.tflite was trained on.
+      # must keep producing the pixels truss_game_v2_model.tflite was trained on.
       # See the comments in requirements.txt before changing this.
       - uses: actions/setup-python@v5
         with:
@@ -41,7 +41,7 @@ jobs:
           pip install -r requirements-build.txt
 
       - name: Build
-        run: pyinstaller --noconfirm --clean truss_game_AI.spec
+        run: pyinstaller --noconfirm --clean truss_game_v2.spec
 
       # The game is an infinite pygame loop, so "it works" means "it is still
       # alive after startup". A packaging failure -- a missing hidden import, or
@@ -49,19 +49,19 @@ jobs:
       - name: Smoke test
         shell: pwsh
         run: |
-          if (-not (Test-Path dist/truss_game_AI.exe)) { throw 'exe was not produced' }
+          if (-not (Test-Path dist/truss_game_v2.exe)) { throw 'exe was not produced' }
           $env:SDL_VIDEODRIVER = 'dummy'
-          $p = Start-Process -FilePath dist/truss_game_AI.exe -PassThru
+          $p = Start-Process -FilePath dist/truss_game_v2.exe -PassThru
           Start-Sleep -Seconds 20
           if ($p.HasExited) { throw "exe exited early with code $($p.ExitCode)" }
           Stop-Process -Id $p.Id -Force
-          $mb = [math]::Round((Get-Item dist/truss_game_AI.exe).Length / 1MB, 1)
+          $mb = [math]::Round((Get-Item dist/truss_game_v2.exe).Length / 1MB, 1)
           Write-Output "started cleanly, $mb MB"
 
       - uses: actions/upload-artifact@v4
         with:
-          name: truss_game_AI-windows
-          path: dist/truss_game_AI.exe
+          name: truss_game_v2-windows
+          path: dist/truss_game_v2.exe
           if-no-files-found: error
 
       - name: Publish release
@@ -70,6 +70,6 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create $env:GITHUB_REF_NAME dist/truss_game_AI.exe `
+          gh release create $env:GITHUB_REF_NAME dist/truss_game_v2.exe `
             --title "Truss Game $env:GITHUB_REF_NAME" `
             --notes-file .github/release-notes.md

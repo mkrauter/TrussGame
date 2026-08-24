@@ -1,4 +1,4 @@
-"""Export truss_game_AI_model.tflite so the browser can run the v2 opponent.
+"""Export truss_game_v2_model.tflite so the browser can run the v2 opponent.
 
     python export_tflite.py
 
@@ -34,7 +34,7 @@ def b64(array):
 
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument('--model', default=str(REPO / 'truss_game_AI_model.tflite'))
+    p.add_argument('--model', default=str(REPO / 'truss_game_v2_model.tflite'))
     p.add_argument('--out', default=str(REPO / 'web' / 'src' / 'model' / 'trussv2.json'))
     args = p.parse_args()
 
@@ -88,7 +88,7 @@ def main():
         'format': 'trussv2/1',
         'inputSize': [int(v) for v in interpreter.get_input_details()[0]['shape'][1:3]],
         'ops': ops,
-        'note': 'weights lifted from truss_game_AI_model.tflite; the model itself is unchanged',
+        'note': 'weights lifted from truss_game_v2_model.tflite; the model itself is unchanged',
     }
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)

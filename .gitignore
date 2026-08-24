@@ -8,7 +8,7 @@ env/
 
 # PyInstaller output. Neither directory is tracked any more -- the Windows
 # binary is published as a GitHub Releases asset by .github/workflows/release.yml
-# instead of being committed. truss_game_AI.spec lives at the repo root and IS
+# instead of being committed. truss_game_v2.spec lives at the repo root and IS
 # tracked; it is the build recipe, not build output.
 #
 # Note the 2023 exe remains in git history (it was added in the initial commit),
@@ -32,7 +32,10 @@ training/corpus[0-9]*/
 training/corpus_v2geom/
 
 # Generated structure corpus. 20MB and 1.5s to rebuild, so not worth committing.
+# The [0-9]* variant catches per-board corpora -- graph_corpus6/ for the six-node
+# experiment -- which the bare trailing slash let through.
 training/graph_corpus/
+training/graph_corpus[0-9]*/
 
 # Checkpoints and logs. The model that ships gets published as a release asset.
 training/runs/
@@ -44,8 +47,11 @@ training/expected.json
 
 # Colab training intermediates. These are exported per training run and are
 # never referenced by the game -- only the .tflite is.
-# Note the trailing slash on truss_game_AI_model/: it matches the SavedModel
-# directory, NOT the deployed truss_game_AI_model.tflite, which stays tracked.
+# truss_game_AI_model/ is the 2023 SavedModel directory and keeps its original
+# name -- it is a historic artifact, and training/diagnose_savedmodels.py and
+# eval_savedmodels.py look it up by that name alongside retrained_200/250. The
+# deployed model was renamed to truss_game_v2_model.tflite and stays tracked;
+# the two no longer share a stem, so the trailing slash is belt-and-braces.
 truss_game_AI_model/
 retrained_*/
 predict.npy

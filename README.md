@@ -45,9 +45,9 @@ games can be played without installing anything; it is a port, not the article.
 | path | what it is |
 |---|---|
 | `truss_game_original.py` | **original** — the human-only game, frozen as a historic reference |
-| `truss_game_AI.py` | **v2** — human against the 2023 model |
-| `truss_game_AI_model.tflite` | the v2 model |
-| `truss_game_AI_training.ipynb` | the v2 training notebook — historic, and its figures are training-set numbers |
+| `truss_game_v2.py` | **v2** — human against the 2023 model |
+| `truss_game_v2_model.tflite` | the v2 model |
+| `truss_game_v2_training.ipynb` | the v2 training notebook — historic, and its figures are training-set numbers — [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/mkrauter/TrussGame/blob/master/truss_game_v2_training.ipynb) |
 | `training/` | **v3** — corpus generation, models, training and the verification harnesses |
 | `truss_game_v3_training.ipynb` | **v3 explained and trained from scratch**, ~10 minutes — [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/mkrauter/TrussGame/blob/master/truss_game_v3_training.ipynb) |
 | `web/` | browser ports of all three, Canvas 2D, no dependencies |
@@ -56,7 +56,7 @@ games can be played without installing anything; it is a port, not the article.
 
     pip install -r requirements.txt
     python truss_game_original.py      # original
-    python truss_game_AI.py            # v2
+    python truss_game_v2.py            # v2
 
 For the browser ports, serve the repository over HTTP — ES modules will not load
 from `file://`:

@@ -1,4 +1,4 @@
-// You against the AI, the browser version of truss_game_AI.py.
+// You against the AI, the browser version of truss_game_v2.py.
 //
 // The AI's only input is a colour screenshot of the scene -- the same thing you
 // are looking at. It never receives node coordinates or the topology. A small

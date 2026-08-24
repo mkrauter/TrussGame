@@ -1,6 +1,6 @@
 // v2 in the browser: you against the 2023 tflite model.
 //
-// A port of truss_game_AI.py, running the 2023 model unchanged --
+// A port of truss_game_v2.py, running the 2023 model unchanged --
 // its weights are lifted out of the flatbuffer by training/export_tflite.py and
 // replayed by src/tflite.js, checked against LiteRT to 0.0002px.
 //
@@ -23,9 +23,9 @@ import { WINDOW, PHYSICS, CROP, HUD, RENDER } from './config.js';
 import { Truss, accuracy } from './truss.js';
 import { drawScene, drawCross } from './renderer.js';
 
-// truss_game_AI.py sampled with a 100px minimum spacing and offset (100, 150).
+// truss_game_v2.py sampled with a 100px minimum spacing and offset (100, 150).
 const TRUSS_OPTIONS = { offset: [100, 150], minDistance: 100 };
-// Members are drawn at v3's thickness. truss_game_AI.py used pygame's 1px
+// Members are drawn at v3's thickness. truss_game_v2.py used pygame's 1px
 // aaline, but hairlines look wrong beside v3 and the difference costs this
 // model almost nothing -- measured below.
 const STYLE = {};

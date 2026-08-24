@@ -1,6 +1,6 @@
 // Runs the v2 model off the main thread.
 //
-// truss_game_AI_model.tflite is 1.7 GMAC, measured at about 0.7s of JavaScript,
+// truss_game_v2_model.tflite is 1.7 GMAC, measured at about 0.7s of JavaScript,
 // three quarters of it in the first three convolutions at 254x254. On the main
 // thread that is a visible stall on every new truss; here the board stays live
 // and the answer arrives while you are still deciding where to click.

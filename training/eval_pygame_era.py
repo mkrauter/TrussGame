@@ -8,7 +8,7 @@ pygame's 1px aalines, v3's truss placement instead of v2's, and -- until
 recently -- a different marker size.
 
 This renders with pygame 2.1.2, which requirements.txt pins for precisely this
-reason, using truss_game_AI.py's own Truss class and its own drawing code, and
+reason, using truss_game_v2.py's own Truss class and its own drawing code, and
 crops exactly as its __predict does. It is the closest thing available to the
 number these models really earned.
 """
@@ -27,18 +27,18 @@ from ai_edge_litert.interpreter import Interpreter
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from truss_game_AI import Truss                                   # noqa: E402
+from truss_game_v2 import Truss                                   # noqa: E402
 
 FORCE = 100000
 MODELS = {
-    'the 2023 model in the repo': ROOT / 'truss_game_AI_model.tflite',
+    'the 2023 model in the repo': ROOT / 'truss_game_v2_model.tflite',
     'retrained_250 (recovered)': ROOT / 'training' / 'recovered' / 'retrained_250.tflite',
     'retrained_200 (rebuilt)': ROOT / 'training' / 'recovered' / 'retrained_200.tflite',
 }
 
 
 def draw_undeformed(screen, truss):
-    """Exactly what truss_game_AI.py has on screen when it asks for a prediction.
+    """Exactly what truss_game_v2.py has on screen when it asks for a prediction.
 
     __draw_truss runs before __predict, and calculate() has not been called yet,
     so every node is at rest and every stress is zero -- which stress_color
@@ -84,7 +84,7 @@ def main(count=1200):
 
     start, end = np.array(start), np.array(end)
     print(f'{count} trusses, rendered by pygame {pygame.version.ver} '
-          f'as truss_game_AI.py draws them\n')
+          f'as truss_game_v2.py draws them\n')
 
     scores = {}
     for name, path in MODELS.items():

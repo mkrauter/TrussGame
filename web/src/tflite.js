@@ -1,4 +1,4 @@
-// Replays truss_game_AI_model.tflite in the browser.
+// Replays truss_game_v2_model.tflite in the browser.
 //
 // The v2 model is a historic artifact -- a 2023 Keras CNN, kept because it is
 // what the project arrived at in 2023, not because it is good. Rather than

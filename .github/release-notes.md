@@ -3,7 +3,7 @@ AI opponent guesses too, from a screenshot alone.
 
 ## Windows
 
-Download `truss_game_AI.exe` below and run it. Nothing to install; the model is
+Download `truss_game_v2.exe` below and run it. Nothing to install; the model is
 bundled inside.
 
 **Windows will warn you.** The binary is unsigned, so SmartScreen shows
@@ -23,7 +23,7 @@ repository.
 ## Running from source
 
     pip install -r requirements.txt
-    python truss_game_AI.py
+    python truss_game_v2.py
 
 The pinned versions in `requirements.txt` are deliberate and documented there.
 `pygame` and `scipy` in particular are frozen because the bundled model was

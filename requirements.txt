@@ -9,7 +9,7 @@
 # will stop that file running. ai-edge-litert asks only for numpy>=1.23.2, so
 # the pin is compatible.
 # scipy and pygame are pinned to protect the model, not for packaging reasons.
-# truss_game_AI_model.tflite is the only model that will ever exist for this
+# truss_game_v2_model.tflite is the only model that will ever exist for this
 # game -- there are no plans to retrain -- so whatever renders its input is part
 # of its contract, and drifting the pixels has no retraining to absorb it.
 #
@@ -37,5 +37,5 @@ pygame==2.1.2
 
 # LiteRT -- the renamed TensorFlow Lite, ~17 MB. Replaces full tensorflow
 # (~996 MB installed), which was only ever a dependency because tflite_runtime
-# stopped shipping Windows wheels. Loads truss_game_AI_model.tflite unchanged.
+# stopped shipping Windows wheels. Loads truss_game_v2_model.tflite unchanged.
 ai-edge-litert==2.2.0

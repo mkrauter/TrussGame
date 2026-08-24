@@ -26,7 +26,7 @@ REPO = HERE.parent
 
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument('--model', default=str(REPO / 'truss_game_AI_model.tflite'))
+    p.add_argument('--model', default=str(REPO / 'truss_game_v2_model.tflite'))
     p.add_argument('--count', type=int, default=8)
     args = p.parse_args()
 
