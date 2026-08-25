@@ -38,10 +38,9 @@ const SPLIT = args.split ?? 'train';
 const COUNT = Number(args.count ?? 64);
 const SEED_BASE = Number(args['seed-base'] ?? (SPLIT === 'val' ? 1_000_000 : 0));
 const OUT = path.resolve(args.out ?? path.join(HERE, 'graph_corpus'), SPLIT);
-// A thinner truss has far fewer load paths, so displacement depends much more
-// on geometry: the constant-guess baseline falls from 60% to 48% at six nodes.
-// The load is scaled with it to keep settled joints inside the 768px crop --
-// at full force six nodes puts 5.9% of them off-canvas against ten nodes' 1.0%.
+// Both default to the shipped board. A thinner truss has far fewer load paths,
+// so displacement depends much more on geometry and grows with it -- scale the
+// load down alongside --nodes to keep settled joints inside the 768px crop.
 const NUM_NODES = Number(args.nodes ?? 0) || undefined;
 const OPTS = NUM_NODES ? { numNodes: NUM_NODES } : {};
 const FORCE = PHYSICS.force * Number(args.force ?? 1);

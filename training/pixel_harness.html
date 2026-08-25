@@ -19,8 +19,8 @@ const canvas = document.getElementById('scene');
 const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
 // ?nodes= and ?force= let the same pipeline be scored on a thinner truss.
-// Six nodes has far fewer load paths, so displacement depends much more on
-// geometry -- the constant-guess baseline falls from 60% to 48% there.
+// Fewer load paths means displacement depends much more on geometry and grows
+// with it, so scale the load down alongside ?nodes= to keep joints in frame.
 const params = new URLSearchParams(location.search);
 const NUM_NODES = Number(params.get('nodes') || 0) || undefined;
 const FORCE = PHYSICS.force * Number(params.get('force') || 1);
@@ -30,7 +30,7 @@ const detector = await TrussDetector.load(
 const gnn = await TrussGNN.load(params.get('gnn') || '../web/src/model/trussgnn.json');
 // The decode takes a fixed number of peaks per class -- [7, 2, 1] for the
 // ten-node game. Two supports and one loaded node hold at any size; only the
-// plain-node count tracks numNodes. ?counts= overrides it so a thinner truss
+// plain-node count tracks numNodes. ?counts= overrides it so a different board
 // can be scored without retraining the detector.
 if (params.get('counts')) {
   detector.counts = params.get('counts').split(',').map(Number);

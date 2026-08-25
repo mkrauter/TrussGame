@@ -32,8 +32,8 @@ training/corpus[0-9]*/
 training/corpus_v2geom/
 
 # Generated structure corpus. 20MB and 1.5s to rebuild, so not worth committing.
-# The [0-9]* variant catches per-board corpora -- graph_corpus6/ for the six-node
-# experiment -- which the bare trailing slash let through.
+# The [0-9]* variant catches per-board corpora written by --nodes/--out, which
+# the bare trailing slash lets through.
 training/graph_corpus/
 training/graph_corpus[0-9]*/
 
