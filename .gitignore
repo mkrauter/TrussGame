@@ -71,3 +71,6 @@ training/recovered/*
 # from is 4MB of TensorFlow 2.9 that nothing here can read any more.
 !training/recovered/retrained_250.tflite
 training/tfvenv/
+
+# Personal Claude Code overrides (not for the team, since there is no team).
+.claude/settings.local.json
