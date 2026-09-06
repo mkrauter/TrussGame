@@ -23,9 +23,8 @@ dist/
 # Node (v2, training)
 node_modules/
 
-# Generated training corpus. Reproducible from generate_corpus.mjs at a fixed
-# seed, and published as a release asset rather than committed -- 20k samples
-# is a few hundred MB of PNG.
+# Generated training corpus. Not committed -- 20k samples is a few hundred MB
+# of PNG, and generate_corpus.mjs rebuilds it from a fixed seed anyway.
 training/corpus/
 # Resolution experiments generate corpus<N>/ alongside it.
 training/corpus[0-9]*/
@@ -37,7 +36,8 @@ training/corpus_v2geom/
 training/graph_corpus/
 training/graph_corpus[0-9]*/
 
-# Checkpoints and logs. The model that ships gets published as a release asset.
+# Checkpoints and logs. The models that ship are committed as .tflite/.json;
+# the runs they came out of are not.
 training/runs/
 training/runs_gnn/
 training/runs_detector/
@@ -74,3 +74,8 @@ training/tfvenv/
 
 # Personal Claude Code overrides (not for the team, since there is no team).
 .claude/settings.local.json
+
+# Scratch notes for generating the article illustrations. These were an aid to
+# thinking up images, not part of the project, and were committed by mistake in
+# 2c119f3; untracked again 2026-09-06. The file stays on disk.
+images/illustration-prompts.md
