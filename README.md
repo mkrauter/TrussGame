@@ -17,7 +17,7 @@ looking cleverer than it was — in
 
 | version | what it is | AI score |
 |---|---|---|
-| **original** | the 1999 game, human only | — |
+| **original** | the 2019 game, human only | — |
 | **v2** | the best of the 2022 convolutional nets | 61.7% |
 | **v3** | the current AI: read the screen, recover the structure, solve it | **96.3%** |
 

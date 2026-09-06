@@ -29,7 +29,7 @@ export class Truss {
     this.sigmas = new Array(this.elements.length).fill(0);
     this.nodesMoved = this.nodes.map((p) => [...p]);
 
-    // 'undeformed' is correct and is what v2 and v3 use. The 1999 original
+    // 'undeformed' is correct and is what v2 and v3 use. The 2019 original
     // took its direction cosines from the *deformed* positions, which mixes
     // linear theory with a deformed configuration and visibly changes the
     // member colours -- so the historic port asks for it deliberately.
