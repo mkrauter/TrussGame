@@ -33,10 +33,6 @@ there.
 [v2](https://mkrauter.github.io/TrussGame/web/v2/), or
 [the original](https://mkrauter.github.io/TrussGame/web/original/).
 
-**[Download v2 for Windows](https://github.com/mkrauter/TrussGame/releases/latest)**
-— the binary is unsigned, so SmartScreen will warn you; click
-*More info → Run anyway*.
-
 ## What is here
 
 The Python versions are the originals. The JavaScript under `web/` exists so the
@@ -127,7 +123,7 @@ solver reading node positions as precisely as v3 does would score about 98%.
 There are no plans to retrain the v2 model, so whatever renders its input is
 part of its contract — newer pygame ships a newer SDL that rasterises polygons
 differently, which measurably moves the model's predictions. `requirements.txt`
-explains each pin. Build tooling lives in `requirements-build.txt`.
+explains each pin.
 
 The v3 renderer is frozen for the same reason: its detector was trained on the
 Canvas output of `web/src/renderer.js`, so changing how members or markers are
@@ -136,6 +132,3 @@ drawn invalidates it.
 Both browser models are checked against their Python originals rather than
 assumed to match — `training/verify_*.py` compares each JavaScript runtime
 against PyTorch or LiteRT on real frames, down to the capture path.
-
-Windows binaries are built by GitHub Actions on a clean runner whenever a `v*`
-tag is pushed, and attached to the release automatically.

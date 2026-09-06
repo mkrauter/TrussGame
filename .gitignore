@@ -6,10 +6,10 @@ __pycache__/
 venv/
 env/
 
-# PyInstaller output. Neither directory is tracked any more -- the Windows
-# binary is published as a GitHub Releases asset by .github/workflows/release.yml
-# instead of being committed. truss_game_v2.spec lives at the repo root and IS
-# tracked; it is the build recipe, not build output.
+# PyInstaller output. Nothing builds an exe any more -- the spec, the release
+# workflow and requirements-build.txt were dropped on 2026-09-06 once every
+# version became playable in a browser. These stay ignored so an ad-hoc
+# pyinstaller run cannot dirty the tree.
 #
 # Note the 2023 exe remains in git history (it was added in the initial commit),
 # so untracking it does not shrink an existing clone -- only a history rewrite

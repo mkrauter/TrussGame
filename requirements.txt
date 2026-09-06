@@ -32,8 +32,9 @@ scipy==1.10.0
 pygame==2.1.2
 
 # PyInstaller is NOT here on purpose -- it is a build tool, not a runtime
-# dependency, and nobody installing this to play the game needs it. It lives in
-# requirements-build.txt.
+# dependency, and nobody installing this to play the game needs it. The Windows
+# binary was dropped on 2026-09-06; every version is playable in a browser, so
+# there is nothing left to package.
 
 # LiteRT -- the renamed TensorFlow Lite, ~17 MB. Replaces full tensorflow
 # (~996 MB installed), which was only ever a dependency because tflite_runtime
