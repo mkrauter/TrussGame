@@ -7,7 +7,7 @@ heroAlt: A man and a small robot sit at the same desk, both pointing at differen
 
 *I built a small game about how structures bend, then spent a month of evenings
 teaching a computer to play it. It fooled me completely, and I did not find out
-why until I picked it up again three years later. What finally worked had
+why until I picked it up again four years later. What finally worked had
 nothing to do with a bigger model — and quite a lot to do with admitting I had
 picked the wrong kind of machine.*
 
@@ -52,7 +52,7 @@ missed by at least as far as the joint actually travelled. So your score is the
 *share of the movement* you predicted, not a distance. Guess the joint's
 starting position and you score exactly zero, however small the movement was.
 
-Human players, after a few rounds of practice, land somewhere around 70–80%.
+Human players, after a few rounds of practice, land somewhere around 50–75%.
 
 ## The obvious idea
 
@@ -69,7 +69,7 @@ where the joint will end up — and show it a few thousand examples with the
 correct answers. Standard stuff. It trained in about ten minutes on a free
 cloud GPU.
 
-That was 2023, and it took about a month of evenings. It scored around 62%, and
+That was 2022, and it took about a month of evenings. It scored around 62%, and
 I was delighted. It seemed to have picked up something real about mechanics just
 by staring at pictures.
 
@@ -78,13 +78,12 @@ more data, longer training. The results were occasionally good and mostly
 mediocre. Then the month ended, as hobby projects do, and this one sat untouched
 until I opened it again in 2026.
 
-Most of those networks are gone now. When I came back to this I went looking,
-and found three survivors in the Recycle Bin: one intact, two with their files
-quietly destroyed by having been read as text at some point years ago. So the
-best model I can still put in front of you is not necessarily the best one I
-trained. I remember better. I have only my word for that, which is worth about
-what anyone's word for an unreproducible result is worth — which is to say, this
-is the number that survived.
+Most of those networks are gone now, and I should be careful about the ones I
+remember being pleased with, because the numbers I remember were measured with
+the training data inside the test — the oldest way there is to look better than
+you are. So the model I can still put in front of you is not necessarily the
+best one I trained. It is the one whose score I trust, because it is the only
+one I have re-measured properly, on trusses it had never seen.
 
 ## The question I forgot to ask
 
@@ -286,9 +285,9 @@ Because the machine works by repeating the same conversation round after round,
 you can simply ask it to stop early. That does not damage it or add random error
 — it gives you a version that has not finished thinking.
 
-![A curve rising from 25% at one round to 96% at ten, crossing the
-straight-down baseline at about five rounds and the human band at
-six.](images/difficulty.png)
+![A curve rising from 25% at one round to 96% at ten. It enters the human band
+between four and five rounds, crosses the straight-down baseline at about five,
+and is above the band by seven.](images/difficulty.png)
 
 One dial, from novice to expert, and it is not a handicap bolted on afterwards.
 It is literally how long the opponent considers the problem before answering.
@@ -298,7 +297,7 @@ That is exactly what the difficulty setting in the game changes. **Easy**,
 **Medium**, **Hard** and **Expert** are four, six, eight and ten rounds of
 thinking — no noise added, no deliberate mistakes, just an opponent given less
 time to work it out. Medium is the default, because human players sit around
-70–80% and six rounds makes for a properly close game.
+50–75% and six rounds makes for a properly close game.
 
 ## What I actually learned
 
@@ -313,7 +312,7 @@ never really about pictures — it was about everything depending on everything 
 and no amount of tuning was going to bridge that.
 
 **A smaller model that is shaped correctly beats a larger one that is not.** The
-final version is a seventh the size and thirty-six points better. It was never
+final version is a seventh the size and thirty-five points better. It was never
 short of capacity. It was wired for the wrong job.
 
 And one that I did not expect: the thing that finally worked was not a machine
@@ -325,7 +324,7 @@ neural networks instead of about trusses.
 
 All three versions run in your browser, no download:
 [mkrauter.github.io/TrussGame](https://mkrauter.github.io/TrussGame/) — the
-original game, the 2021 model, and the current one. Press **V** while playing
+original game, the 2022 model, and the current one. Press **V** while playing
 the newest version to see the structure it recovered from the screen, which I
 find oddly satisfying to watch.
 
@@ -334,7 +333,7 @@ passing, the equilibrium loss, and the experiment where widening the receptive
 field made things worse — it is all in
 [a notebook](https://colab.research.google.com/github/mkrauter/TrussGame/blob/master/truss_game_v3_training.ipynb)
 you can run for free. It builds the training data and trains the model to 96% in
-about six minutes, so you can watch it happen rather than take my word for it.
+about ten minutes, so you can watch it happen rather than take my word for it.
 
 And if you can close the gap between 96.3% and the 98% that eyesight allows, or
 get there with fewer parameters — please tell me. I would rather not wait for

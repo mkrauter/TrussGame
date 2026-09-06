@@ -3,7 +3,7 @@
     python verify_export.py            # writes expected.json
     node verify_export.mjs             # rebuilds it in JS and compares
 
-Two implementations of one function is exactly the shape of v1's train/serve
+Two implementations of one function is exactly the shape of v2's train/serve
 skew bug. The difference is that this one is checked.
 """
 from __future__ import annotations

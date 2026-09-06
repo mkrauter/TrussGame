@@ -1,24 +1,24 @@
 """The v3 architecture.
 
-Every choice here answers a measured failure of the deployed v1 model:
+Every choice here answers a measured failure of the deployed v2 model:
 
-- **Receptive field.** v1 reached 106px at 256x256 input while the support span
+- **Receptive field.** v2 reached 106px at 256x256 input while the support span
   is 190-233px, so no unit ever saw both supports and the trunk could not
   compute the thing that determines the answer. Five stages with dilation 2 and
   4 in the last two reach 237px. Dilation costs no parameters at all, which
   matters under a fixed budget.
-- **Two heads.** v1 regressed the absolute settled position, but localisation is
+- **Two heads.** v2 regressed the absolute settled position, but localisation is
   already solved (0.97 correlation) and soaked up a loss it had nothing left to
   learn from. Predicting start and delta separately puts the gradient on the
   mechanics, which is the part that scored a negative R-squared.
 - **Soft-argmax instead of Flatten -> Dense.** That single dense layer was
-  204,994 of v1's 307,618 parameters -- two thirds of the model doing all the
+  204,994 of v2's 307,618 parameters -- two thirds of the model doing all the
   global reasoning from a thin 10x10x32 map. A soft-argmax turns each feature
   map into a coordinate for zero parameters, which is the natural operation for
   coordinate regression, and unlike global average pooling it keeps position.
 - **CoordConv.** Convolutions are translation-equivariant; the output is a
   translation-variant coordinate. Two extra input channels fix the mismatch.
-- **Normalisation and residual-free depth.** v1 had no normalisation anywhere
+- **Normalisation and residual-free depth.** v2 had no normalisation anywhere
   and fed raw 0-255 into ReLU with Glorot init, which is why its first epochs
   were flat at a constant output.
 """

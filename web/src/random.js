@@ -1,6 +1,6 @@
-// Seedable PRNG. The corpus generator needs reproducible trusses, and
-// CLAUDE.md's training discipline requires a validation set that is generated
-// once from a fixed seed and never regenerated.
+// Seedable PRNG. The corpus generator needs reproducible trusses: the
+// validation set is generated once from a fixed seed and never regenerated,
+// so a score is always comparable to the one before it.
 
 export function mulberry32(seed) {
   let a = seed >>> 0;

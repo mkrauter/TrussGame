@@ -53,7 +53,7 @@ window.evaluateRange = function (start, count, seedBase) {
       seed,
       score: accuracy(truss.loadedStart, truss.loadedEnd, click),
       ms,
-      // How far the prediction is from the node's *starting* point: v1's
+      // How far the prediction is from the node's *starting* point: v2's
       // measured failure was that it located the node well and barely moved it.
       fromStart: Math.hypot(click[0] - truss.loadedStart[0], click[1] - truss.loadedStart[1]),
       travelled: Math.hypot(truss.loadedEnd[0] - truss.loadedStart[0],

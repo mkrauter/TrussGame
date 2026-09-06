@@ -7,7 +7,7 @@ computed, and compares against PyTorch running on the corpus PNG for the same
 seed. Three things are being checked at once, and each has already been a bug
 somewhere in this project:
 
-  * the crop-and-downscale, which is where v1's train/serve skew lived
+  * the crop-and-downscale, which is where v2's train/serve skew lived
   * the convolution runtime, hand-written twice in two languages
   * the peak decode, whose offsets went to the wrong cell the first time
 """

@@ -1,6 +1,6 @@
-// v2 in the browser: you against the 2023 tflite model.
+// v2 in the browser: you against the 2022 tflite model.
 //
-// A port of truss_game_v2.py, running the 2023 model unchanged --
+// A port of truss_game_v2.py, running the 2022 model unchanged --
 // its weights are lifted out of the flatbuffer by training/export_tflite.py and
 // replayed by src/tflite.js, checked against LiteRT to 0.0002px.
 //
@@ -9,11 +9,9 @@
 // average distance" -- it moves the node 138px where the truth is 156px. It
 // finds the node and drops it. v3 scores 96.3% on the same task.
 //
-// This is retrained_250, recovered from the Recycle Bin: the best surviving
-// model of several trained in 2023, written by TensorFlow 2.9 in September of
-// that year. It was chosen over the other readable candidate by measurement:
-// +1.41 points, 95% CI [+0.58, +2.26] over 2400 trusses. Real, but it took that
-// many to resolve -- at 600 the difference was indistinguishable from noise.
+// That 61.7% is a fresh measurement on trusses the model never trained on. The
+// figures from the era were better and were not trustworthy: the evaluation had
+// the training set inside it.
 //
 // It was trained on pygame's hairlines and this page draws v3's thicker
 // members. Measured either way the difference is a point or so, which 150
@@ -203,7 +201,7 @@ function drawHud() {
   ctx.fillStyle = HUD.hintColor;
   ctx.textAlign = 'left';
   ctx.fillText(
-    thinkMs > 0 ? `2023 tflite model · ${(thinkMs / 1000).toFixed(1)}s per move` : '2023 tflite model',
+    thinkMs > 0 ? `2022 tflite model · ${(thinkMs / 1000).toFixed(1)}s per move` : '2022 tflite model',
     HUD.margin,
     HUD.bottomBaseline
   );

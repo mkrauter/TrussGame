@@ -1,7 +1,7 @@
 // Single source of truth for every constant that must stay identical between
 // the playable game and the headless training-corpus generator. Anything that
 // changes the pixels the model sees belongs in here, not inline at the call
-// site -- train/serve skew in v1 came from exactly that kind of drift.
+// site -- train/serve skew in v2 came from exactly that kind of drift.
 
 export const WINDOW = { width: 900, height: 900 };
 
@@ -11,12 +11,13 @@ export const CROP = { x: 68, y: 68, width: 768, height: 768 };
 export const TRUSS = {
   numNodes: 10,
   size: [700, 500],
-  // v1 disagreed with itself: offset=100 in the committed game, (100,150) in
+  // v2 disagreed with itself: offset=100 in the committed game, (100,150) in
   // the working tree. The shift down existed to stop the truss colliding with
   // pygame's on-canvas HUD text at y=130, which sits inside the model crop.
-  // v2 draws the HUD in HTML outside the canvas, so we take the original value:
-  // measured over 5000 rounds it drops settled targets landing outside the
-  // 768px crop from 2.9% to 1.0%.
+  // The ports confine the HUD to the bands outside the model crop (see HUD
+  // below), so nothing collides and we take the original value: measured over
+  // 5000 rounds it drops settled targets landing outside the 768px crop from
+  // 2.9% to 1.0%.
   offset: [100, 100],
   minDistance: 100,
   // Rejection sampling can in principle never terminate. Fail loudly instead.
@@ -35,7 +36,7 @@ export const PHYSICS = {
 // Both the game at inference time and the corpus generator go through
 // capture.js, so the resampling is byte-identical. Resizing with PyTorch at
 // training time and with drawImage at serving time would reintroduce
-// train/serve skew by the back door -- the same class of bug as v1's, just
+// train/serve skew by the back door -- the same class of bug as v2's, just
 // moved from the rasteriser to the resampler.
 export const MODEL = {
   inputSize: 256,
@@ -56,10 +57,11 @@ export const RENDER = {
   supportColor: 'rgb(64, 128, 64)',
   loadedColor: 'rgb(100, 100, 200)',
   markerSize: [15, 30],
-  // v1 used aaline, which is 1px only. CLAUDE.md wants 2-3px so the lines
-  // survive the 768->256 bilinear downsample against grey25.
+  // v2 used aaline, which is 1px only. 2-3px is what survives the 768->256
+  // bilinear downsample against grey25 -- at 1px the members thin to almost
+  // nothing and the detector loses them.
   lineWidth: 2.5,
-  // v1 had three different values for this (20 in the game, 5 in the working
+  // v2 had three different values for this (20 in the game, 5 in the working
   // tree, 3 in the notebook). One place now.
   stressScale: 5,
 };

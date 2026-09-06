@@ -2,7 +2,7 @@
 
 The model only ever sees the CROP region, so that region is what gets mapped to
 [-1, 1]. Targets in raw screen pixels span roughly 100..900, which is what gave
-v1 an initial MSE around 1e5 and eight flat epochs before anything moved.
+v2 an initial MSE around 1e5 and eight flat epochs before anything moved.
 
 Positions outside the crop map outside [-1, 1], deliberately: about 1% of
 settled targets land off the visible image, and the model has to be able to say

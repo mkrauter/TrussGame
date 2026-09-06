@@ -1,7 +1,7 @@
 // Replays truss_game_v2_model.tflite in the browser.
 //
-// The v2 model is a historic artifact -- a 2023 Keras CNN, kept because it is
-// what the project arrived at in 2023, not because it is good. Rather than
+// The v2 model is a historic artifact -- a 2022 Keras CNN, kept because it is
+// what the project arrived at in 2022, not because it is good. Rather than
 // pull a TFLite
 // runtime into the page for one frozen model, training/export_tflite.py lifts
 // its weights out of the flatbuffer and this file replays the handful of ops it

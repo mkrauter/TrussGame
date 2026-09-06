@@ -96,7 +96,7 @@ BANNER = """
 >
 > * The accuracy reported at the end was measured over **all** the samples,
 >   including the 1600 the model trained on. Scored honestly on unseen trusses,
->   models of this generation reach about **60%**, against **59.5%** for a single
+>   the model that shipped reaches **61.7%**, against **59.5%** for a single
 >   line of arithmetic -- guess straight down by the average travel.
 > * The grid of example predictions is drawn from **training** samples too
 >   (indices 1500-1519; validation is 0-399), so it shows how well the model

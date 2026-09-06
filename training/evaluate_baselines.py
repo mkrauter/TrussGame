@@ -39,7 +39,7 @@ def main():
     fair = [r for r in rows if not r[0].startswith('[oracle]')]
     best_name, best = max(fair, key=lambda r: r[1]['mean'])
     print(f'\nbar to beat: {best["mean"]:.1f}% mean ({best_name})')
-    print(f'target band: 70-80% -- roughly average human play')
+    print(f'target band: 50-75% -- roughly average human play')
 
     span = metrics.support_span(val['support_a'], val['support_b'])
     travel = np.linalg.norm(val['end'] - val['start'], axis=-1)

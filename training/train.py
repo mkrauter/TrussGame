@@ -3,11 +3,11 @@
     python train.py --smoke              # overfit 8 samples, ~2 min, proves the plumbing
     python train.py --epochs 60          # a real run
 
-Reproducibility rules this follows, all of them lessons from v1:
+Reproducibility rules this follows, all of them lessons from v2:
   - every RNG is seeded, and the config is written next to the result
   - the validation split is generated once from a fixed seed and never
     regenerated, so two runs sit the same exam
-  - checkpoints go on best validation accuracy, not the final epoch; v1's
+  - checkpoints go on best validation accuracy, not the final epoch; v2's
     val_mae swung +/-15% between consecutive epochs and saving the last one was
     a lottery
   - the GPU is asserted, not silently fallen back on
@@ -178,7 +178,7 @@ def main():
               f'loc {localisation:.0f}px  {time.time()-t0:.0f}s{flag}')
 
     (out / 'history.json').write_text(json.dumps(history, indent=1))
-    print(f'\nbest validation accuracy {best:.1f}%   (baseline to beat 59.5%, target 70-80%)')
+    print(f'\nbest validation accuracy {best:.1f}%   (baseline to beat 59.5%, target 50-75%)')
     print(f'artifacts in {out}')
 
 

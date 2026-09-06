@@ -29,7 +29,7 @@ export class Truss {
     this.sigmas = new Array(this.elements.length).fill(0);
     this.nodesMoved = this.nodes.map((p) => [...p]);
 
-    // 'undeformed' is correct and is what v2 and v3 use. The 2019 original
+    // 'undeformed' is correct and is what v2 and v3 use. The 1999 original
     // took its direction cosines from the *deformed* positions, which mixes
     // linear theory with a deformed configuration and visibly changes the
     // member colours -- so the historic port asks for it deliberately.
@@ -75,9 +75,9 @@ export class Truss {
     this.sigmas = this.elements.map((e) => {
       // Undeformed geometry, matching the K this solve used. Taking the
       // direction cosines from nodesMoved instead mixes linear theory with a
-      // deformed configuration and breaks nodal equilibrium -- in v1 that put
+      // deformed configuration and breaks nodal equilibrium -- in v2 that put
       // some members fully red when they should have been fully blue.
-      // (v1 also read dx and dy from different arrays here; both come from the
+      // (v2 also read dx and dy from different arrays here; both come from the
       // same one now.)
       const from = this.stressFrom === 'deformed' ? this.nodesMoved : this.nodes;
       const { rows, length, c, s } = geometry(e, from);

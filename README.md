@@ -17,21 +17,20 @@ looking cleverer than it was — in
 
 | version | what it is | AI score |
 |---|---|---|
-| **original** | the 2019 game, human only | — |
-| **v2** | the best of the 2023 convolutional nets | 61.7% |
+| **original** | the 1999 game, human only | — |
+| **v2** | the best of the 2022 convolutional nets | 61.7% |
 | **v3** | the current AI: read the screen, recover the structure, solve it | **96.3%** |
 
-All three are playable in the browser, no download:
-
-**[Train v3 yourself](https://colab.research.google.com/github/mkrauter/TrussGame/blob/master/truss_game_v3_training.ipynb)**
-— a notebook that builds the corpus, trains the model to 96% in about six
-minutes on a free GPU, and explains why the obvious architecture cannot get
-there.
-
-**[Play all three](https://mkrauter.github.io/TrussGame/)** — or go straight to
+All three are playable in the browser, no download —
+**[play all three](https://mkrauter.github.io/TrussGame/)**, or go straight to
 [v3](https://mkrauter.github.io/TrussGame/web/v3/),
 [v2](https://mkrauter.github.io/TrussGame/web/v2/), or
 [the original](https://mkrauter.github.io/TrussGame/web/original/).
+
+**[Train v3 yourself](https://colab.research.google.com/github/mkrauter/TrussGame/blob/master/truss_game_v3_training.ipynb)**
+— a notebook that builds the corpus, trains the model to 96% in about ten
+minutes on a free GPU, and explains why the obvious architecture cannot get
+there.
 
 ## What is here
 
@@ -41,10 +40,10 @@ games can be played without installing anything; it is a port, not the article.
 | path | what it is |
 |---|---|
 | `truss_game_original.py` | **original** — the human-only game, frozen as a historic reference |
-| `truss_game_v2.py` | **v2** — human against the 2023 model |
+| `truss_game_v2.py` | **v2** — human against the 2022 model |
 | `truss_game_v2_model.tflite` | the v2 model |
 | `truss_game_v2_training.ipynb` | the v2 training notebook — historic, and its figures are training-set numbers — [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/mkrauter/TrussGame/blob/master/truss_game_v2_training.ipynb) |
-| `training/` | **v3** — corpus generation, models, training and the verification harnesses |
+| `training/` | **v3** — corpus generation, models, training and the verification harnesses; also the figure and article builders |
 | `truss_game_v3_training.ipynb` | **v3 explained and trained from scratch**, ~10 minutes — [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/mkrauter/TrussGame/blob/master/truss_game_v3_training.ipynb) |
 | `web/` | browser ports of all three, Canvas 2D, no dependencies |
 
@@ -87,20 +86,21 @@ its movement you predicted, not a distance in pixels.
 |---|---|---|
 | guess the starting point — never move | 0% | 0% |
 | guess straight down by the average travel | 59.5% | 66.5% |
-| **v2**, the best 2023 model | 61.7% | 65.8% |
+| **v2**, the best 2022 model | 61.7% | 65.8% |
 | **v3**, the current model | **96.3%** | **97.3%** |
 | a perfect solver, reading the screen as well as v3 does | ~98% | — |
 
 **v2 beats a one-line heuristic by two points.** The 61.7% above is
-`retrained_250`, the best of several networks trained in 2023 and the only one
-still readable; the others did not survive. Decomposing it explains why: it locates
+`truss_game_v2_model.tflite`, the model that shipped, re-measured here on seeds
+it never trained on. Decomposing it explains the number: it locates
 the loaded node almost perfectly from pixels alone — 0.97 correlation with the
 true position — but its displacement prediction scores a negative R² against
 simply always guessing the mean. It moves the node 138px where the truth
 averages 156px. It learned to find the blue node and drop it by roughly the
 average amount, which is most of the game's score and none of the mechanics.
-The figure quoted in the v2 notebook was measured on training data, and the
-notebook predates the model left in the repository and does not reproduce it. The browser port draws members
+The higher figure quoted in the v2 notebook was measured with training data
+inside the evaluation, and the notebook predates the model left in the
+repository and does not reproduce it. The browser port draws members
 at v3's thickness rather than pygame's hairlines so the three versions look
 alike; the effect on v2's score is within the noise of the measurement.
 

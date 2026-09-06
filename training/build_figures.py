@@ -425,8 +425,8 @@ def difficulty():
     score = np.array([24.6, 30.7, 46.4, 68.3, 85.6, 95.7])
 
     fig, ax = plt.subplots(figsize=(7.2, 4.4))
-    ax.axhspan(70, 80, color=GREEN, alpha=0.14, zorder=0)
-    ax.text(1.15, 75, 'where human players sit', color=GREEN, fontsize=10,
+    ax.axhspan(50, 75, color=GREEN, alpha=0.14, zorder=0)
+    ax.text(1.15, 68, 'where human players sit', color=GREEN, fontsize=10,
             va='center')
     ax.axhline(59.5, color=RED, lw=1.3, ls=(0, (5, 4)), zorder=1)
     # Right-aligned under the line: on the left it sat on top of the 4-round

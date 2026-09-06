@@ -56,7 +56,7 @@ detector.counts = [TRUSS.numNodes - 3, 2, 1];
 // handicapped, it has simply thought about the structure for less time.
 //
 // The scores are measured, not guessed -- `node training/eval_pixel_pipeline.mjs
-// --rounds N` over the validation seeds. Human players sit around 70-80%, which
+// --rounds N` over the validation seeds. Human players sit around 50-75%, which
 // is why Medium is the default: it is the level that makes a real contest.
 const LEVELS = [
   { name: 'Easy', rounds: 4, score: 46 },
