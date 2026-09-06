@@ -10,7 +10,7 @@ read from the model's own op list, not assumed:
     resize 768 -> 256, then 4 blocks of 3x3 convs with valid padding and a
     2x2 max pool, then flatten and two dense layers.
 
-`verify_tflite.mjs` checks the JS replay against LiteRT on real frames. That
+`verify_tflite.py` checks the JS replay against LiteRT on real frames. That
 matters more than usual here, because fused activations are not exposed by the
 Python API and are inferred below -- if the inference is wrong, the check fails.
 """

@@ -66,8 +66,8 @@ is this dog" demo you have ever seen, and it is very good.
 
 So: feed it a screenshot of the truss, ask it for two numbers — the coordinates
 where the joint will end up — and show it a few thousand examples with the
-correct answers. Standard stuff. It trained in about ten minutes on a free
-cloud GPU.
+correct answers. Standard stuff. It trained in about a quarter of an hour on a
+free cloud GPU.
 
 That was 2022, and it took about a month of evenings. It scored around 62%, and
 I was delighted. It seemed to have picked up something real about mechanics just

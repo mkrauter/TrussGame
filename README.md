@@ -132,3 +132,11 @@ drawn invalidates it.
 Both browser models are checked against their Python originals rather than
 assumed to match — `training/verify_*.py` compares each JavaScript runtime
 against PyTorch or LiteRT on real frames, down to the capture path.
+
+`requirements.txt` is what the two Python games need and nothing more. The
+tooling under `training/` asks for more, installed as you need it: `torch` for
+training and the verification harnesses, `matplotlib` for `build_figures.py`,
+`markdown==3.10.3` for `build_article.py` (pinned, because the rendered page is
+committed and an unpinned renderer would churn it), and `node` with
+`npm install` in `training/` for the corpus generators and the Playwright
+harnesses.

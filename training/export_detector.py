@@ -10,7 +10,7 @@ compose exactly:
     b' = beta - gamma * mean / sqrt(var + eps)
 
 That halves the number of passes over each feature map and means convnet.js
-only ever has to implement conv and SiLU. `verify_detector.mjs` checks the
+only ever has to implement conv and SiLU. `verify_detector.py` checks the
 folded model against PyTorch rather than trusting the algebra.
 """
 from __future__ import annotations

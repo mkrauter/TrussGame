@@ -148,7 +148,7 @@ There are two tasks to get through:
 
 ## Data feed methods
 
-Creating the images from the game itself, on your own computer, is the easy half. Pygame can capture any region of the window at any moment, so a simple loop does the job: build a random truss, save the screen as an image, solve the truss for its displacement, and write the resulting coordinates to a text file. That generator is not repeated in this notebook -- it lives in `truss_game_v2.py` in the repo, and what we do here is consume what it produced.
+Creating the images from the game itself, on your own computer, is the easy half. Pygame can capture any region of the window at any moment, so a simple loop does the job: build a random truss, save the screen as an image, solve the truss for its displacement, and write the resulting coordinates to a text file. That generator is not repeated in this notebook, and it did not survive into the repository either -- what we do here is consume the archive it produced at the time.
 
 Getting those images to the virtual machine that does the training is where it turns awkward. Uploading 2000 separate files to a Google Drive folder takes a while, and reading them back one by one from the mounted Drive is slow all over again.
 

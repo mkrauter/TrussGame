@@ -2,9 +2,9 @@
 
 This is the half that keeps the game fair -- the model's only input is the
 colour screenshot a player looks at. It returns node positions and each node's
-role; connectivity is read from the same image afterwards (see detect.py), and
-the mechanics are left to the graph network, which is the right computational
-class for a global implicit solve.
+role; connectivity is read from the same image afterwards (see
+web/src/detect.js), and the mechanics are left to the graph network, which is
+the right computational class for a global implicit solve.
 
 Detection is genuinely easy here in a way the physics never was: markers are
 distinct shapes in known colours on a flat background. So the network is small

@@ -1,11 +1,10 @@
 // Replays truss_game_v2_model.tflite in the browser.
 //
 // The v2 model is a historic artifact -- a 2022 Keras CNN, kept because it is
-// what the project arrived at in 2022, not because it is good. Rather than
-// pull a TFLite
-// runtime into the page for one frozen model, training/export_tflite.py lifts
-// its weights out of the flatbuffer and this file replays the handful of ops it
-// uses. training/verify_tflite.mjs checks the replay against LiteRT.
+// what the project arrived at in 2022, not because it is good. Rather than pull
+// a TFLite runtime into the page for one frozen model, training/export_tflite.py
+// lifts its weights out of the flatbuffer and this file replays the handful of
+// ops it uses. training/verify_tflite.py checks the replay against LiteRT.
 //
 // It is heavy: 1.7 GMAC, three quarters of it in the first three convolutions
 // at 254x254. Measured at ~0.7s per move here, so about 2.4 GMAC/s -- the loop
